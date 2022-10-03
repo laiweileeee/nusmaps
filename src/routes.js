@@ -1,5 +1,8 @@
-import Create from "./pages/CreatePage";
-import Home from "./pages/HomePage";
+import CreatePage from "./pages/CreatePage";
+import HomePage from "./pages/HomePage";
+import ListPage from "./pages/ListPage";
+import MapPage from "./pages/MapPage";
+import ProfilePage from "./pages/ProfilePage";
 
 export const routes = [
   {
@@ -7,34 +10,34 @@ export const routes = [
     title: "Home",
     path: "/",
     enabled: true,
-    component: Home,
+    component: HomePage,
   },
   {
     key: "create-route",
     title: "Create",
     path: "/create",
     enabled: true,
-    component: Create,
+    component: CreatePage,
   },
   {
     key: "map-route",
     title: "Map",
     path: "/map",
     enabled: true,
-    component: Create,
+    component: MapPage,
   },
   {
     key: "list-route",
     title: "List",
     path: "/list",
     enabled: true,
-    component: Create,
+    component: ListPage,
   },
   {
     key: "profile-route",
     title: "Profile",
     path: "/profile",
     enabled: true,
-    component: Create,
+    component: ProfilePage,
   },
 ];

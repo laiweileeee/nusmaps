@@ -1,10 +1,23 @@
 // src/pages/Home.js
 import React from "react";
-import { Box, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-const Home = () => {
+import { Box, Button, Fab } from "@mui/material";
+import { styled } from "@mui/material/styles";
+import AddIcon from "@mui/icons-material/Add";
+
+const HomePage = () => {
   const navigate = useNavigate();
+
+  const StyledFab = styled(Fab)({
+    position: "absolute",
+    zIndex: 1,
+    top: "auto",
+    bottom: 60,
+    left: 0,
+    right: 0,
+    margin: "0 auto",
+  });
 
   return (
     <Box
@@ -19,8 +32,11 @@ const Home = () => {
       <Button variant="contained" onClick={() => navigate("/create")}>
         Create New
       </Button>
+      <StyledFab color="secondary" onClick={() => navigate("/create")}>
+        <AddIcon />
+      </StyledFab>
     </Box>
   );
 };
 
-export default Home;
+export default HomePage;
