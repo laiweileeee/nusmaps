@@ -1,5 +1,7 @@
 {
   "projects": {
     "default": "nusmaps-d41ae"
-  }
+  },
+  "targets": {},
+  "etags": {}
 }
