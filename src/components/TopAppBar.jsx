@@ -67,7 +67,7 @@ export default function MenuAppBar() {
       // Get the signed-in user's profile pic and name.
       const userName = getAuth().currentUser.displayName;
       console.log("current user ", getAuth().currentUser);
-      setAuth(true);
+      // setAuth(true);
 
       // Set the user's profile pic and name.
 

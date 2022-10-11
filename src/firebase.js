@@ -8,12 +8,12 @@ import { getFirestore } from "firebase/firestore";
 // Your web app's Firebase configuration
 // TODO: replace this with .env file
 const firebaseConfig = {
-  apiKey: "AIzaSyC9dfiZEmRmfZ6eSNR2rSLQf5rweG4ep-E",
-  authDomain: "nusmaps-d41ae.firebaseapp.com",
-  projectId: "nusmaps-d41ae",
-  storageBucket: "nusmaps-d41ae.appspot.com",
-  messagingSenderId: "404103690427",
-  appId: "1:404103690427:web:e57b430771523a6c6f919e",
+  apiKey: process.env.REACT_APP_API_KEY,
+  authDomain: process.env.REACT_APP_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);
