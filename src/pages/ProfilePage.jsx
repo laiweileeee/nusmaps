@@ -22,19 +22,9 @@ const ProfilePage = () => {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
+        overflow: "auto",
       }}
-    >
-      <Typography variant="h5">{title} create</Typography>
-      <TextField
-        id="outlined-basic"
-        label="Title"
-        variant="outlined"
-        onChange={(e) => setTitle(e.target.value)}
-      />
-      <Button variant="contained" onClick={handleSubmit}>
-        Add Event
-      </Button>
-    </Box>
+    ></Box>
   );
 };
 

@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { Box, Typography, TextField, Button } from "@mui/material";
+import { Box, Typography, TextField, Button, Fab } from "@mui/material";
 import { db } from "../firebase";
 import { serverTimestamp, addDoc, collection } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import AddIcon from "@mui/icons-material/Add";
+import { styled } from "@mui/material/styles";
 
-const MapPage = () => {
+const Map = () => {
   const [title, setTitle] = useState();
   const navigate = useNavigate();
 
@@ -16,6 +18,16 @@ const MapPage = () => {
     });
   };
 
+  const StyledFab = styled(Fab)({
+    position: "absolute",
+    zIndex: 1,
+    top: "auto",
+    bottom: 60,
+    left: 0,
+    right: 0,
+    margin: "0 auto",
+  });
+
   return (
     <Box
       sx={{
@@ -26,18 +38,14 @@ const MapPage = () => {
         alignItems: "center",
       }}
     >
-      <Typography variant="h5">{title} create</Typography>
-      <TextField
-        id="outlined-basic"
-        label="Title"
-        variant="outlined"
-        onChange={(e) => setTitle(e.target.value)}
-      />
       <Button variant="contained" onClick={() => navigate("/create")}>
         Create Event
       </Button>
+      <StyledFab color="secondary" onClick={() => navigate("/create")}>
+        <AddIcon />
+      </StyledFab>
     </Box>
   );
 };
 
-export default MapPage;
+export default Map;
