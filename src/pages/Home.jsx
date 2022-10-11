@@ -6,7 +6,7 @@ import { Box, Button, Fab } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import AddIcon from "@mui/icons-material/Add";
 
-const HomePage = () => {
+const Home = () => {
   const navigate = useNavigate();
 
   const StyledFab = styled(Fab)({
@@ -32,11 +32,11 @@ const HomePage = () => {
       <Button variant="contained" onClick={() => navigate("/create")}>
         Create New
       </Button>
-      <StyledFab color="secondary" onClick={() => navigate("/create")}>
+      <StyledFab color="primary" onClick={() => navigate("/create")}>
         <AddIcon />
       </StyledFab>
     </Box>
   );
 };
 
-export default HomePage;
+export default Home;
