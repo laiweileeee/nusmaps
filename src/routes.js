@@ -1,7 +1,7 @@
 import Create from "./pages/Create";
 import Home from "./pages/Home";
-import List from "./pages/List";
-import Map from "./pages/Map";
+import ListView from "./pages/ListView";
+import Map from "./pages/MapView";
 import Profile from "./pages/Profile";
 
 export const routes = [
@@ -28,10 +28,10 @@ export const routes = [
   },
   {
     key: "list-route",
-    title: "List",
+    title: "ListView",
     path: "/list",
     enabled: true,
-    component: List,
+    component: ListView,
   },
   {
     key: "profile-route",

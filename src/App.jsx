@@ -67,7 +67,7 @@ function App() {
                     to={"/map"}
                   />
                   <BottomNavigationAction
-                    label="List"
+                    label="ListView"
                     value="lists"
                     icon={<FormatListBulletedIcon />}
                     component={routerLink}

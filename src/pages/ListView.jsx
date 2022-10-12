@@ -15,7 +15,7 @@ import {
 } from "firebase/firestore";
 import { themeConfig } from "../theme/theme";
 
-const List = () => {
+const ListView = () => {
   const [title, setTitle] = useState();
   const [events, setEvents] = useState([]); //TODO: rename events to something else
   const [loaded, setLoaded] = useState();
@@ -97,4 +97,4 @@ const List = () => {
   );
 };
 
-export default List;
+export default ListView;
