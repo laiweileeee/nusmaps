@@ -1,4 +1,6 @@
 import React, { useContext, useState } from "react";
+import { GoogleAuthProvider, signInWithRedirect, signOut } from "firebase/auth";
+
 import {
   Box,
   Typography,
@@ -12,7 +14,21 @@ import {
 import { AuthContext } from "../contexts/AuthProvider";
 
 const Profile = () => {
-  const { user } = useContext(AuthContext);
+  const { user, auth } = useContext(AuthContext);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+
+
+  async function signOutUser() {
+    // Sign out of Firebase.
+    await signOut(auth);
+  }
+
+  const handleSignOut = async () => {
+    await signOutUser();
+    setAnchorEl(null);
+  };
+
   console.log(user);
 
   return (
@@ -62,6 +78,9 @@ const Profile = () => {
             >
               {user?.email}
             </Typography>
+            <Button variant="outlined" color="error" onClick={handleSignOut}>
+              Log Out
+            </Button>
         </Stack>
       </Stack>
 
