@@ -8,6 +8,8 @@ Cool app description
 _Theme object taken from [material ui](https://mui.com/material-ui/customization/default-theme/#main-content)_
 - [ ] Customize theme to our liking
 
+<br/>
+
 `src/contexts/AuthProvider.jsx`
 
 _React context provider to allow access to shared data_
