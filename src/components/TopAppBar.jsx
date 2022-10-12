@@ -150,7 +150,7 @@ export default function MenuAppBar() {
           {isLoggedIn ? (
             <div>
               <Avatar
-                sx={{ width: 32, height: 32, ml: 1 }}
+                sx={{ width: 38, height: 38, ml: 1 }}
                 onClick={handleMenu}
                 src={user?.photoURL}
               />
