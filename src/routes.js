@@ -2,7 +2,7 @@ import Create from "./pages/Create";
 import Home from "./pages/Home";
 import List from "./pages/List";
 import Map from "./pages/Map";
-import ProfilePage from "./pages/ProfilePage";
+import Profile from "./pages/Profile";
 
 export const routes = [
   {
@@ -38,6 +38,6 @@ export const routes = [
     title: "Profile",
     path: "/profile",
     enabled: true,
-    component: ProfilePage,
+    component: Profile,
   },
 ];

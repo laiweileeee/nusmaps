@@ -1,15 +1,13 @@
 import * as React from "react";
+import { useContext, useEffect, useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import AccountCircle from "@mui/icons-material/AccountCircle";
-import Switch from "@mui/material/Switch";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormGroup from "@mui/material/FormGroup";
+
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import InputBase from "@mui/material/InputBase";
@@ -18,22 +16,35 @@ import { Search } from "@mui/icons-material";
 import { styled, alpha } from "@mui/material/styles";
 import { Button } from "@mui/material";
 
-import {
-  getAuth,
-  onAuthStateChanged,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signOut,
-} from "firebase/auth";
-import { useEffect } from "react";
+import { GoogleAuthProvider, signInWithRedirect, signOut } from "firebase/auth";
+import { AuthContext } from "../contexts/AuthProvider";
+import { useNavigate } from "react-router-dom";
 
 export default function MenuAppBar() {
-  const [auth, setAuth] = React.useState(true);
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleChange = (event) => {
-    setAuth(event.target.checked);
-  };
+  // fetch user and auth object from AuthProvider without prop drilling
+  const { user, auth } = useContext(AuthContext);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Listen to auth state changes.
+    if (user) {
+      // User is signed in!
+      setIsLoggedIn(true);
+      console.log("current user from provider (if)", user);
+
+      // signOutUser();
+
+      // We save the Firebase Messaging Device token and enable notifications.
+      // saveMessagingDeviceToken();
+    } else {
+      setIsLoggedIn(false);
+      console.log("current user from provider (else)", user);
+    }
+  }, [user]);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -41,52 +52,24 @@ export default function MenuAppBar() {
 
   const handleClose = () => {
     setAnchorEl(null);
+    navigate("/profile");
   };
 
+  const handleSignOut = async () => {
+    await signOutUser();
+    setAnchorEl(null);
+  };
+
+  // TODO: Add backdrop loader for sign in delay
   async function signIn() {
     // Sign in Firebase using popup auth and Google as the identity provider.
     const provider = new GoogleAuthProvider();
-    await signInWithPopup(getAuth(), provider);
+    await signInWithRedirect(auth, provider);
   }
 
   async function signOutUser() {
     // Sign out of Firebase.
-    await signOut(getAuth());
-    setAuth(false);
-  }
-
-  function initFirebaseAuth() {
-    // Listen to auth state changes.
-    onAuthStateChanged(getAuth(), authStateObserver);
-  }
-
-  // Triggers when the auth state change for instance when the user signs-in or signs-out.
-  function authStateObserver(user) {
-    if (user) {
-      // User is signed in!
-      // Get the signed-in user's profile pic and name.
-      const userName = getAuth().currentUser.displayName;
-      console.log("current user ", getAuth().currentUser);
-      // setAuth(true);
-
-      // Set the user's profile pic and name.
-
-      // Show user's profile and sign-out button.
-
-      // Hide sign-in button.
-
-      // We save the Firebase Messaging Device token and enable notifications.
-      // saveMessagingDeviceToken();
-    } else {
-      // User is signed out!
-      // Hide user's profile and sign-out button.
-      // Show sign-in button.
-    }
-  }
-
-  // Returns true if a user is signed-in.
-  function isUserSignedIn() {
-    return !!getAuth().currentUser;
+    await signOut(auth);
   }
 
   const Search = styled("div")(({ theme }) => ({
@@ -130,8 +113,6 @@ export default function MenuAppBar() {
     },
   }));
 
-  initFirebaseAuth();
-
   return (
     <Box sx={{ flexGrow: 1 }}>
       {/*<FormGroup>*/}
@@ -166,7 +147,7 @@ export default function MenuAppBar() {
               inputProps={{ "aria-label": "search" }}
             />
           </Search>
-          {auth ? (
+          {isLoggedIn ? (
             <div>
               <IconButton
                 size="large"
@@ -194,7 +175,7 @@ export default function MenuAppBar() {
                 onClose={handleClose}
               >
                 <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose}>My account</MenuItem>
+                <MenuItem onClick={handleSignOut}>Sign Out</MenuItem>
               </Menu>
             </div>
           ) : (
