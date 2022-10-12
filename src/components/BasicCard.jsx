@@ -42,8 +42,8 @@ const BasicCard = ({
   title,
   description,
   creator,
-  startDate,
-  endDate,
+  startDateTime,
+  endDateTime,
   location,
   capacity,
 }) => {
@@ -106,8 +106,12 @@ const BasicCard = ({
               color="text.secondary"
             >
               <AccessTime fontSize="inherit" sx={{ mr: 0.5 }} />
-              {startDate || endDate
-                ? `${startDate} - ${endDate}`
+              {startDateTime || endDateTime
+                ? `${startDateTime
+                    .toDate()
+                    .toLocaleDateString()} - ${endDateTime
+                    .toDate()
+                    .toLocaleDateString()}`
                 : "time - time"}
             </Typography>
             <Typography

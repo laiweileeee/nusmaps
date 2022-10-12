@@ -91,30 +91,7 @@ const List = () => {
           <CircularProgress />
         </Box>
       ) : (
-        events.map(
-          ({
-            type,
-            title,
-            description,
-            startDateTime,
-            endDateTime,
-            location,
-            createdBy,
-            capacity,
-          }) => (
-            <BasicCard
-              key={title}
-              type={type}
-              title={title}
-              description={description}
-              startDate={startDateTime.toDate().toLocaleTimeString()}
-              endDate={endDateTime.toDate().toLocaleString()}
-              location={location}
-              creator={createdBy}
-              capacity={capacity}
-            />
-          )
-        )
+        events.map((data) => <BasicCard key={data.title} {...data} />)
       )}
     </Box>
   );

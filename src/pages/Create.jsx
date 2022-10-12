@@ -24,9 +24,8 @@ import { NumericFormat } from "react-number-format";
 import PropTypes from "prop-types";
 import { styled } from "@mui/material/styles";
 
-// TODO: add input validation
-const Create = () => {
-  const [type, setType] = useState();
+const useFormData = () => {
+  const [type, setType] = useState("Event");
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState();
   const [startDateTime, setStartDateTime] = useState();
@@ -34,7 +33,42 @@ const Create = () => {
   const [description, setDescription] = useState("");
   const [capacity, setCapacity] = useState();
 
-  const [slots, setSlots] = useState();
+  return {
+    type,
+    setType,
+    title,
+    setTitle,
+    location,
+    setLocation,
+    startDateTime,
+    setStartDateTime,
+    endDateTime,
+    setEndDateTime,
+    description,
+    setDescription,
+    capacity,
+    setCapacity,
+  };
+};
+
+// TODO: add input validation
+const Create = () => {
+  const {
+    type,
+    setType,
+    title,
+    setTitle,
+    location,
+    setLocation,
+    startDateTime,
+    setStartDateTime,
+    endDateTime,
+    setEndDateTime,
+    description,
+    setDescription,
+    capacity,
+    setCapacity,
+  } = useFormData();
 
   const navigate = useNavigate();
 
