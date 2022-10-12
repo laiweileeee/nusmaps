@@ -14,7 +14,7 @@ import InputBase from "@mui/material/InputBase";
 
 import { Search } from "@mui/icons-material";
 import { styled, alpha } from "@mui/material/styles";
-import { Button } from "@mui/material";
+import { Avatar, Button } from "@mui/material";
 
 import { GoogleAuthProvider, signInWithRedirect, signOut } from "firebase/auth";
 import { AuthContext } from "../contexts/AuthProvider";
@@ -149,16 +149,12 @@ export default function MenuAppBar() {
           </Search>
           {isLoggedIn ? (
             <div>
-              <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
+              <Avatar
+                sx={{ width: 32, height: 32, ml: 1 }}
                 onClick={handleMenu}
-                color="inherit"
-              >
-                <AccountCircle />
-              </IconButton>
+                src={user?.photoURL}
+              />
+
               <Menu
                 id="menu-appbar"
                 anchorEl={anchorEl}

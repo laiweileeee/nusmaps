@@ -40,22 +40,12 @@ const MapView = () => {
         mapStyle="mapbox://styles/mapbox/streets-v9"
         mapboxAccessToken={MAPBOX_TOKEN}
       />
-      <Box
-        sx={{
-          flexGrow: 1,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        {/*<Button variant="contained" onClick={() => navigate("/create")}>*/}
-        {/*  Create Event*/}
-        {/*</Button>*/}
-        <StyledFab color="secondary" onClick={() => navigate("/create")}>
-          <AddIcon />
-        </StyledFab>
-      </Box>
+      {/*<Button variant="contained" onClick={() => navigate("/create")}>*/}
+      {/*  Create Event*/}
+      {/*</Button>*/}
+      <StyledFab color="secondary" onClick={() => navigate("/create")}>
+        <AddIcon />
+      </StyledFab>
     </>
   );
 };
