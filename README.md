@@ -1,4 +1,90 @@
 # nusmaps
+
+### Functionality 
+
+
+##### Front-end
+`AuthProvider.jsx`
+
+_React context provider to allow access to shared data_
+- [x] Provdie current user data from firebase auth to all child components 
+
+<br/>
+
+`LocationProvider.jsx` (NOT Implemented)
+
+_React context provvider to allow access to shared data_ 
+- [ ] Provdie current location data from maps api to all child components 
+
+<br/>
+
+`TopAppBar.jsx` 
+
+_Top app bar for searching and user controls_
+- [x] Add google auth sign-in/ sign-out flow
+- [ ] Add search support for events data
+
+<br/>
+
+`MapView.jsx` 
+
+_Map view for 'events'_
+- [x] Add Mapbox map
+- [ ] Display pins for list of events based on zoom level
+- [ ] Add popup to display event detials for pins on click event 
+
+<br/>
+
+ `ListView.jsx` 
+ 
+ _List view for 'events'_
+- [x] View list of events
+- [ ] Add sorting and filtering UI
+- [ ] Add sorting and filtering firestore queries
+- [ ] Display calculated distance from user 
+- [ ] Display calculated time from event start time 
+- [ ] Add conditional logic to display current capcity, max capacity or nothing
+- [ ] Add conditional logic to display 'Join Event' button 
+- [ ] Add button logic for 'Join Event' 
+- [ ] Add support for event images (If we have time) 
+
+<br/>
+
+`Create.jsx` 
+
+_Create an 'event'_
+- [x] Add create event functionality 
+- [ ] Add location input using maps API
+- [ ] Add input validation for form fields
+- [ ] Clean up `<NativeSelect/>` component to follow the float label format (`<Select/>` from material ui couldn't work for me) 
+- [ ] Move entire page to a dialog/ modal
+
+<br/>
+
+`CreatedEvents.jsx` 
+
+_List view for 'created event's_ (NOT Implemented, not sure what to call 'events' tbh)
+- [ ] View list of created events 
+- [ ] Add update event functionality 
+- [ ] Add delete event functionality 
+
+<br/>
+
+##### Firestore
+- [ ] Modify rules to only allow authenticated users to add/ edit events 
+- [ ] Add indexes for sorting and filtering queries   
+
+<br/>
+
+### Styling
+
+`Profile.jsx`
+
+_Authenticated user details_
+- [ ] Clean up ui, add more user data if needed 
+
+<br/>
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
