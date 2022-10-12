@@ -19,7 +19,7 @@
     "react-map-gl": "^7.0.19",
     "react-number-format": "^5.0.1",
     "react-router-dom": "^6.4.1",
-    "react-scripts": "5.0.1"
+    "react-scripts": "^5.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
