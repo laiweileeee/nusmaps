@@ -13,6 +13,15 @@ import {
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { CardMedia, Divider, IconButton } from "@mui/material";
+import moment from "moment";
+
+const dateTimeOptions = {
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+};
 
 const bull = (
   <Box
@@ -73,8 +82,8 @@ const BasicCard = ({
             sx={{ fontSize: "small", alignItems: "center" }}
             color="text.secondary"
           >
-            {type || "type"} {bull} {distanceFromUser || "XX km"} {bull} in{" "}
-            {timeFromUser || "XX"} min{" "}
+            {type || "type"} {bull} {distanceFromUser || "XX km"} {bull}{" "}
+            {moment(startDateTime.toDate()).fromNow() || "XX"}
           </Typography>
           <Typography
             sx={{ display: "flex", alignItems: "center" }}
@@ -109,9 +118,9 @@ const BasicCard = ({
               {startDateTime || endDateTime
                 ? `${startDateTime
                     .toDate()
-                    .toLocaleDateString()} - ${endDateTime
+                    .toLocaleString([], dateTimeOptions)} - ${endDateTime
                     .toDate()
-                    .toLocaleDateString()}`
+                    .toLocaleString([], dateTimeOptions)}`
                 : "time - time"}
             </Typography>
             <Typography
