@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Box, CircularProgress, Typography, ToggleButton } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  ToggleButton,
+  Typography,
+} from "@mui/material";
 
 import BasicCard from "../components/BasicCard";
 
 import { db } from "../firebase";
 import {
-  serverTimestamp,
-  addDoc,
   collection,
   query,
   where,
@@ -15,22 +20,13 @@ import {
   onSnapshot,
   Timestamp,
 } from "firebase/firestore";
-import { themeConfig } from "../theme/theme";
 
 const ListView = () => {
-  const [title, setTitle] = useState();
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]); //TODO: rename events to something else
   const [loaded, setLoaded] = useState();
   const [eventsSelected, setEventsSelected] = useState(true);
   const [earliestSelected, setEarliestSelected] = useState(true);
-
-  const handleSubmit = async () => {
-    // Add a new document in collection "events"
-    await addDoc(collection(db, "events"), {
-      name: title,
-      timestamp: serverTimestamp(),
-    });
-  };
 
   // Loads events and listens for upcoming ones.
   const loadEvents = () => {
@@ -101,7 +97,10 @@ const ListView = () => {
           paddingBottom: 2,
         }}
       >
-        <Typography variant="h6" component="div">
+        <Button variant="outlined" onClick={() => navigate("/create")}>
+          Create Event
+        </Button>
+        <Typography variant="h6" component="div" sx={{ marginTop: 1 }}>
           Type
         </Typography>
         <ToggleButton
@@ -149,24 +148,23 @@ const ListView = () => {
           <CircularProgress />
         </Box>
       ) : (
-        <>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "Column",
+            flexGrow: 1,
+            minWidth: 330,
+            maxWidth: 350,
+          }}
+        >
           {events.length > 0 ? (
             events.map((data) => <BasicCard key={data.title} {...data} />)
           ) : (
-            <Box
-              sx={{
-                display: "flex",
-                flexGrow: 1,
-                minWidth: 330,
-                maxWidth: 350,
-              }}
-            >
-              <Typography variant="h6" component="div">
-                {eventsSelected ? "No events found." : "No groups found."}
-              </Typography>
-            </Box>
+            <Typography variant="h6" component="div">
+              {eventsSelected ? "No events found." : "No groups found."}
+            </Typography>
           )}
-        </>
+        </Box>
       )}
     </Box>
   );

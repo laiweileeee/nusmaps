@@ -1,10 +1,13 @@
 import * as React from "react";
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
+import {
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import {
   LocationOn,
   AccessTime,
@@ -12,7 +15,6 @@ import {
   Group,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
-import { CardMedia, Divider, IconButton } from "@mui/material";
 import moment from "moment";
 
 const dateTimeOptions = {
@@ -46,7 +48,6 @@ const ExpandMore = styled((props) => {
 
 const BasicCard = ({
   type,
-  timeFromUser,
   distanceFromUser,
   title,
   description,
@@ -61,14 +62,15 @@ const BasicCard = ({
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
+
   return (
     <Card
       sx={{
+        height: "fit-content",
         minWidth: 330,
         maxWidth: 350, // card size max 95% of screen width
         mb: 1,
       }}
-      onClick={() => setExpanded(!expanded)}
     >
       <CardContent>
         <Box
@@ -157,7 +159,9 @@ const BasicCard = ({
           </CardContent>
           <CardActions>
             <Box sx={{ paddingLeft: 1, paddingRight: 1, paddingBottom: 2 }}>
-              <Button variant="outlined">Join Event</Button>
+              <Button variant="outlined">
+                {type == "Event" ? "Join Event" : "Join Group"}
+              </Button>
             </Box>
           </CardActions>
         </Box>
