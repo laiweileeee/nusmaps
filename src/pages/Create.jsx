@@ -11,23 +11,32 @@ import {
 
 import {
   Box,
-  Typography,
-  TextField,
   Button,
-  NativeSelect,
-  InputBase,
+  FormControl,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  Modal,
+  OutlinedInput,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
 } from "@mui/material";
-import InputLabel from "@mui/material/InputLabel";
-import FormControl from "@mui/material/FormControl";
+import { Place } from "@mui/icons-material";
 
 import { NumericFormat } from "react-number-format";
-import PropTypes from "prop-types";
-import { styled } from "@mui/material/styles";
+import Map, { Marker } from "react-map-gl";
+
+const MAPBOX_TOKEN =
+  "pk.eyJ1IjoibmljbHF0IiwiYSI6ImNsOWR6YWk1ejA0Y2UzcG95djhucHlqaTEifQ.gHrtX5AcWucEpY3W3n1DQQ";
 
 const useFormData = () => {
   const [type, setType] = useState("Event");
   const [title, setTitle] = useState("");
-  const [location, setLocation] = useState();
+  const [longitude, setLongitude] = useState(103.7769);
+  const [latitude, setLatitude] = useState(1.2959);
+  const [location, setLocation] = useState("");
   const [startDateTime, setStartDateTime] = useState();
   const [endDateTime, setEndDateTime] = useState();
   const [description, setDescription] = useState("");
@@ -38,6 +47,10 @@ const useFormData = () => {
     setType,
     title,
     setTitle,
+    longitude,
+    setLongitude,
+    latitude,
+    setLatitude,
     location,
     setLocation,
     startDateTime,
@@ -58,6 +71,10 @@ const Create = () => {
     setType,
     title,
     setTitle,
+    longitude,
+    setLongitude,
+    latitude,
+    setLatitude,
     location,
     setLocation,
     startDateTime,
@@ -71,6 +88,7 @@ const Create = () => {
   } = useFormData();
 
   const navigate = useNavigate();
+  const [displayMap, setDisplayMap] = useState(false);
 
   const handleSubmit = async () => {
     console.log({
@@ -78,16 +96,23 @@ const Create = () => {
       description,
       capacity,
       type,
+      location,
+      longitude,
+      latitude,
       startDateTime: Timestamp.fromDate(new Date(startDateTime)),
       endDateTime: Timestamp.fromDate(new Date(endDateTime)),
       timestamp: serverTimestamp(),
     });
+
     // Add a new document in collection "events"
     await addDoc(collection(db, "events"), {
       title,
       description,
       capacity,
       type,
+      location,
+      longitude,
+      latitude,
       startDateTime: Timestamp.fromDate(new Date(startDateTime)),
       endDateTime: Timestamp.fromDate(new Date(endDateTime)),
       timestamp: serverTimestamp(),
@@ -101,69 +126,23 @@ const Create = () => {
     props,
     ref
   ) {
-    const { onChange, ...other } = props;
-
     return (
       <NumericFormat
-        {...other}
+        {...props}
         getInputRef={ref}
-        onValueChange={(values) => {
-          onChange({
-            target: {
-              name: props.name,
-              value: values.value,
-            },
-          });
-        }}
-        isNumericString
+        decimalScale={0}
+        allowNegative={false}
       />
     );
   });
-
-  NumberFormatCustom.propTypes = {
-    name: PropTypes.string.isRequired,
-    onChange: PropTypes.func.isRequired,
-  };
-
-  // custom css for NativeSelect dropdown as Select doesn't seem to be working
-  const BootstrapInput = styled(InputBase)(({ theme }) => ({
-    "label + &": {
-      marginTop: theme.spacing(3),
-      marginBottom: theme.spacing(2),
-    },
-    "& .MuiInputBase-input": {
-      color: "#B2BAC2",
-      borderRadius: 10,
-      position: "relative",
-      border: "1px solid #3D4E64",
-      fontSize: 16,
-      padding: "16.5px 14px",
-      transition: theme.transitions.create(["border-color", "box-shadow"]),
-      // Use the system font instead of the default Roboto font.
-      fontFamily: [
-        "-apple-system",
-        "BlinkMacSystemFont",
-        '"Segoe UI"',
-        "Roboto",
-        '"Helvetica Neue"',
-        "Arial",
-        "sans-serif",
-        '"Apple Color Emoji"',
-        '"Segoe UI Emoji"',
-        '"Segoe UI Symbol"',
-      ].join(","),
-      "&:focus": {
-        borderRadius: 4,
-        borderColor: "#80bdff",
-        boxShadow: "0 0 0 0.2rem rgba(0,123,255,.25)",
-      },
-    },
-  }));
 
   console.log("states ", {
     type,
     title,
     description,
+    longitude,
+    latitude,
+    location,
     startDateTime,
     endDateTime,
     capacity,
@@ -175,39 +154,35 @@ const Create = () => {
         flexGrow: 1,
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center",
         alignItems: "center",
+        paddingBottom: 10,
       }}
     >
-      <Typography variant="h5">Create New Event</Typography>
       <Box
         component="form"
         sx={{
           "& .MuiTextField-root": { mb: 2, width: "100%" },
           display: "flex",
           flexDirection: "column",
-          minWidth: 280,
-          maxWidth: 300,
+          minWidth: 260,
+          width: "90%",
         }}
       >
-        <FormControl fullWidth>
-          <InputLabel
-            variant="standard"
-            htmlFor="demo-customized-select-native"
-          >
-            Type
-          </InputLabel>
-          <NativeSelect
-            id="demo-customized-select-native"
-            variant="outlined"
-            defaultValue={type ? type : "Choose a type"}
-            input={<BootstrapInput />}
-            onChange={(e) => setType(e.target.value)}
-          >
-            <option value={"Event"}>Event</option>
-            <option value={"Group"}>Group</option>
-          </NativeSelect>
-        </FormControl>
+        <Typography variant="h5" sx={{ paddingTop: 2, paddingBottom: 1 }}>
+          Create New Event
+        </Typography>
+        <ToggleButtonGroup
+          value={type}
+          exclusive
+          onChange={(e) => {
+            setType(e.target.value);
+          }}
+          fullWidth
+          sx={{ marginBottom: 2 }}
+        >
+          <ToggleButton value="Event">Event</ToggleButton>
+          <ToggleButton value="Group">Group</ToggleButton>
+        </ToggleButtonGroup>
         <TextField
           id="outlined-basic"
           label="Title"
@@ -227,28 +202,62 @@ const Create = () => {
           id="start-datetime-local"
           label="Start Date and Time"
           type="datetime-local"
-          sx={{ width: 250 }}
           InputLabelProps={{
             shrink: true,
           }}
+          // only allow future dates
+          inputProps={{
+            min: new Date().toISOString().substring(0, 16),
+          }}
           value={startDateTime}
-          onChange={(e) => setStartDateTime(e.target.value)}
+          onChange={(e) => {
+            setStartDateTime(e.target.value);
+          }}
         />
         {/* TODO: valdiate date input */}
         <TextField
           id="end-datetime-local"
           label="End Date and Time"
           type="datetime-local"
+          // disable end date time input until user enters start date time
+          disabled={startDateTime ? false : true}
           InputLabelProps={{
             shrink: true,
+          }}
+          inputProps={{
+            min: startDateTime,
           }}
           value={endDateTime}
           onChange={(e) => setEndDateTime(e.target.value)}
         />
+        <FormControl variant="outlined" sx={{ marginBottom: 2 }}>
+          <InputLabel htmlFor="location">Location</InputLabel>
+          <OutlinedInput
+            id="location"
+            value={location}
+            label="Password"
+            endAdornment={
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => {
+                    setDisplayMap(true);
+                  }}
+                  edge="end"
+                >
+                  <Place />
+                </IconButton>
+              </InputAdornment>
+            }
+            onChange={(e) => {
+              setLocation(e.target.value);
+            }}
+          />
+        </FormControl>
+
         <TextField
           label="Capacity"
           value={capacity}
-          onChange={(e) => setCapacity(e.target.value)}
+          onBlur={(e) => setCapacity(e.target.value)}
           name="numberformat"
           id="outlined-basic"
           variant="outlined"
@@ -261,6 +270,51 @@ const Create = () => {
       <Button variant="contained" onClick={handleSubmit}>
         Create Event
       </Button>
+
+      <Modal
+        open={displayMap}
+        sx={{
+          display: "flex",
+          flexGrow: 1,
+          flexDirection: "column",
+          padding: "5%",
+        }}
+        onClose={() => {
+          setDisplayMap(false);
+        }}
+      >
+        <>
+          <Map
+            initialViewState={{
+              longitude: 103.7727,
+              latitude: 1.2907,
+              zoom: 13,
+            }}
+            mapStyle="mapbox://styles/mapbox/streets-v9"
+            mapboxAccessToken={MAPBOX_TOKEN}
+            style={{ borderRadius: 10, marginBottom: 8 }}
+          >
+            <Marker
+              longitude={longitude}
+              latitude={latitude}
+              draggable
+              style={{ cursor: "pointer" }}
+              onDragEnd={(e) => {
+                setLongitude(e.lngLat.lng);
+                setLatitude(e.lngLat.lat);
+              }}
+            ></Marker>
+          </Map>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setDisplayMap(false);
+            }}
+          >
+            Set Location
+          </Button>
+        </>
+      </Modal>
     </Box>
   );
 };
