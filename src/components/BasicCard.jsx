@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useContext, useState } from "react";
 import {
   Box,
   Button,
@@ -16,6 +16,8 @@ import {
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import moment from "moment";
+import { LngLat } from "mapbox-gl";
+import { LocationContext } from "../contexts/LocationProvider";
 
 const dateTimeOptions = {
   year: "numeric",
@@ -48,16 +50,21 @@ const ExpandMore = styled((props) => {
 
 const BasicCard = ({
   type,
-  distanceFromUser,
   title,
   description,
   creator,
   startDateTime,
   endDateTime,
   location,
+  longitude,
+  latitude,
   capacity,
 }) => {
-  const [expanded, setExpanded] = React.useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const { currentLocation } = useContext(LocationContext);
+  const distanceFromUser = (
+    new LngLat(longitude, latitude).distanceTo(currentLocation) / 1000
+  ).toFixed(2);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -67,8 +74,7 @@ const BasicCard = ({
     <Card
       sx={{
         height: "fit-content",
-        minWidth: 330,
-        maxWidth: 350, // card size max 95% of screen width
+        minWidth: 260,
         mb: 1,
       }}
     >
@@ -84,7 +90,7 @@ const BasicCard = ({
             sx={{ fontSize: "small", alignItems: "center" }}
             color="text.secondary"
           >
-            {type || "type"} {bull} {distanceFromUser || "XX km"} {bull}{" "}
+            {type || "type"} {bull} {distanceFromUser + " km" || "XX km"} {bull}{" "}
             {moment(startDateTime.toDate()).fromNow() || "XX"}
           </Typography>
           <Typography
@@ -160,7 +166,7 @@ const BasicCard = ({
           <CardActions>
             <Box sx={{ paddingLeft: 1, paddingRight: 1, paddingBottom: 2 }}>
               <Button variant="outlined">
-                {type == "Event" ? "Join Event" : "Join Group"}
+                {type === "Event" ? "Join Event" : "Join Group"}
               </Button>
             </Box>
           </CardActions>
