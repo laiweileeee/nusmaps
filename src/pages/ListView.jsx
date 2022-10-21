@@ -92,8 +92,8 @@ const ListView = () => {
     >
       <Box
         sx={{
-          minWidth: 330,
-          maxWidth: 350,
+          minWidth: 260,
+          width: "90%",
           paddingBottom: 2,
         }}
       >
@@ -153,8 +153,8 @@ const ListView = () => {
             display: "flex",
             flexDirection: "Column",
             flexGrow: 1,
-            minWidth: 330,
-            maxWidth: 350,
+            minWidth: 260,
+            width: "90%",
           }}
         >
           {events.length > 0 ? (

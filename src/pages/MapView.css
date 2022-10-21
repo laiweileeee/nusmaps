@@ -1,0 +1,20 @@
+.mapboxgl-popup {
+  width: 90%;
+  max-width: 350px !important;
+}
+
+.mapboxgl-popup-anchor-top .mapboxgl-popup-tip {
+  border-bottom-color: #0a1929;
+}
+
+.mapboxgl-popup-content {
+  background: transparent;
+  border-radius: unset;
+  box-shadow: unset;
+  padding: unset;
+  width: fit-content;
+}
+
+.mapboxgl-popup-close-button {
+  display: none;
+}
