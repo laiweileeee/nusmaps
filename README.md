@@ -41,7 +41,6 @@ _Map view for 'events'_
   - [x] Display all pins
   - [ ] Display pins for list of events based on zoom level 
 - [x] Add popup to display event detials for pins on tap event 
-- [ ] Bring pin to the center of the viewport on tap event 
 - [ ] Styling
 
 <br/>
