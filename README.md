@@ -20,7 +20,7 @@ _React context provider to allow access to shared data_
 `src/contexts/LocationProvider.jsx` (NOT Implemented)
 
 _React context provvider to allow access to shared data_ 
-- [ ] Provdie current location data from maps api to all child components 
+- [x] Provdie current location data from maps api to all child components 
 
 <br/>
 
@@ -28,7 +28,7 @@ _React context provvider to allow access to shared data_
 
 _Top app bar for searching and user controls_
 - [x] Add google auth sign-in/ sign-out flow
-- [ ] Add search support for events data
+- [ ] Add search support for events data (this should focus users to the pin of the location selected from the search results)
 - [ ] Styling
 
 <br/>
@@ -37,8 +37,10 @@ _Top app bar for searching and user controls_
 
 _Map view for 'events'_
 - [x] Add Mapbox map
-- [ ] Display pins for list of events based on zoom level
-- [ ] Add popup to display event detials for pins on click event 
+- [ ] Display pins for list of events 
+  - [x] Display all pins
+  - [ ] Display pins for list of events based on zoom level 
+- [x] Add popup to display event detials for pins on click event 
 - [ ] Styling
 
 <br/>
@@ -47,13 +49,15 @@ _Map view for 'events'_
  
  _List view for 'events'_
 - [x] View list of events
-- [ ] Add sorting and filtering UI
-- [ ] Add sorting and filtering firestore queries
-- [ ] Display calculated distance from user 
-- [ ] Display calculated time from event start time 
+- [x] Add sorting and filtering UI
+- [x] Add sorting and filtering firestore queries
+- [x] Add sort by 'earliest first'
+- [ ] Add sort by 'nearest first' (firestore doesn't support this, need to fetch all events and filter on client side) 
+- [x] Display calculated distance from user 
+- [x] Display calculated time from event start time 
 - [ ] Add conditional logic to display current capcity, max capacity or nothing
-- [ ] Add conditional logic to display 'Join Event' button 
-- [ ] Add button logic for 'Join Event' 
+- [ ] Add conditional logic to display 'Join Event' button (For events with some capacity) 
+- [ ] Add button logic for 'Join Event' (either increase 'capacity count', or add entire user object to an array 
 - [ ] Add support for event images (If we have time) 
 - [ ] Styling
 
@@ -64,10 +68,12 @@ _Map view for 'events'_
 
 _Create an 'event'_
 - [x] Add create event functionality 
-- [ ] Add location input using maps API
+- [ ] Add location input using maps API (user needs to drop location pin AND enter location details separately (e.g., COM3 Seminar Room 1))
+  - [ ] Allow searching for coords (forward geocoding) 
 - [ ] Add input validation for form fields
-- [ ] Clean up `<NativeSelect/>` component to follow the float label format (`<Select/>` from material ui couldn't work for me) 
-- [ ] Move entire page to a dialog/ modal
+- [ ] Make 'capacity' field optional (this will determine if users can or cannot join an event)
+- [x] Repalce `<NativeSelect/>` component with toggle buttons 
+- [ ] Move entire page to a dialog/ modal if got time 
 - [ ] Styling
 
 <br/>
