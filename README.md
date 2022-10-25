@@ -24,15 +24,6 @@ _React context provvider to allow access to shared data_
 
 <br/>
 
-`src/components/TopAppBar.jsx` 
-
-_Top app bar for searching and user controls_
-- [x] Add google auth sign-in/ sign-out flow
-- [ ] Add search support for events data (this should focus users to the pin of the location selected from the search results)
-- [ ] Styling
-
-<br/>
-
 `src/pages/MapView.jsx` 
 
 _Map view for 'events'_
@@ -125,7 +116,7 @@ Example:
 REACT_APP_API_KEY=""
 REACT_APP_AUTH_DOMAIN=""
 REACT_APP_PROJECT_ID=""
-REACT_APP_STORAGE_BUCKET="
+REACT_APP_STORAGE_BUCKET=""
 REACT_APP_MESSAGING_SENDER_ID=""
 REACT_APP_APP_ID=""
 ```

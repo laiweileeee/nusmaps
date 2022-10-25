@@ -19,7 +19,6 @@ import {
   Paper,
 } from "@mui/material";
 import { Map, FormatListBulleted, AccountCircle } from "@mui/icons-material";
-import TopAppBar from "./components/TopAppBar";
 
 import { AuthProvider } from "./contexts/AuthProvider";
 import { LocationProvider } from "./contexts/LocationProvider";
@@ -43,8 +42,6 @@ function App() {
           <CssBaseline>
             <Box height="100vh" display="flex" flexDirection="column">
               <Router>
-                <TopAppBar />
-                {/*<Navbar />*/}
                 <Routes>
                   <Route path="/" element={<Navigate to="/map" />} />
                   {appRoutes.map((route) => (
@@ -80,7 +77,7 @@ function App() {
                       to={"/map"}
                     />
                     <BottomNavigationAction
-                      label="ListView"
+                      label="List"
                       value="/list"
                       icon={<FormatListBulleted />}
                       component={routerLink}
