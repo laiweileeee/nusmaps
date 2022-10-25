@@ -5,13 +5,13 @@ import Map from "./pages/MapView";
 import Profile from "./pages/Profile";
 
 export const routes = [
-  {
-    key: "home-route",
-    title: "Home",
-    path: "/",
-    enabled: true,
-    component: Home,
-  },
+  // {
+  //   key: "home-route",
+  //   title: "Home",
+  //   path: "/",
+  //   enabled: true,
+  //   component: Map,
+  // },
   {
     key: "create-route",
     title: "Create",

@@ -1,10 +1,13 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
-import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
+import React, { useContext, useState } from "react";
+import {
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import {
   LocationOn,
   AccessTime,
@@ -12,7 +15,17 @@ import {
   Group,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
-import { CardMedia, Divider, IconButton } from "@mui/material";
+import moment from "moment";
+import { LngLat } from "mapbox-gl";
+import { LocationContext } from "../contexts/LocationProvider";
+
+const dateTimeOptions = {
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+};
 
 const bull = (
   <Box
@@ -37,29 +50,33 @@ const ExpandMore = styled((props) => {
 
 const BasicCard = ({
   type,
-  timeFromUser,
-  distanceFromUser,
   title,
   description,
   creator,
   startDateTime,
   endDateTime,
   location,
+  longitude,
+  latitude,
   capacity,
 }) => {
-  const [expanded, setExpanded] = React.useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const { currentLocation } = useContext(LocationContext);
+  const distanceFromUser = (
+    new LngLat(longitude, latitude).distanceTo(currentLocation) / 1000
+  ).toFixed(2);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
+
   return (
     <Card
       sx={{
-        minWidth: 330,
-        maxWidth: 350, // card size max 95% of screen width
+        height: "fit-content",
+        minWidth: 260,
         mb: 1,
       }}
-      onClick={() => setExpanded(!expanded)}
     >
       <CardContent>
         <Box
@@ -73,8 +90,8 @@ const BasicCard = ({
             sx={{ fontSize: "small", alignItems: "center" }}
             color="text.secondary"
           >
-            {type || "type"} {bull} {distanceFromUser || "XX km"} {bull} in{" "}
-            {timeFromUser || "XX"} min{" "}
+            {type || "type"} {bull} {distanceFromUser + " km" || "XX km"} {bull}{" "}
+            {moment(startDateTime.toDate()).fromNow() || "XX"}
           </Typography>
           <Typography
             sx={{ display: "flex", alignItems: "center" }}
@@ -109,9 +126,9 @@ const BasicCard = ({
               {startDateTime || endDateTime
                 ? `${startDateTime
                     .toDate()
-                    .toLocaleDateString()} - ${endDateTime
+                    .toLocaleString([], dateTimeOptions)} - ${endDateTime
                     .toDate()
-                    .toLocaleDateString()}`
+                    .toLocaleString([], dateTimeOptions)}`
                 : "time - time"}
             </Typography>
             <Typography
@@ -148,7 +165,9 @@ const BasicCard = ({
           </CardContent>
           <CardActions>
             <Box sx={{ paddingLeft: 1, paddingRight: 1, paddingBottom: 2 }}>
-              <Button variant="outlined">Join Event</Button>
+              <Button variant="outlined">
+                {type === "Event" ? "Join Event" : "Join Group"}
+              </Button>
             </Box>
           </CardActions>
         </Box>

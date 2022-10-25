@@ -114,7 +114,7 @@ export default function MenuAppBar() {
   }));
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box>
       {/*<FormGroup>*/}
       {/*  <FormControlLabel*/}
       {/*    control={*/}
