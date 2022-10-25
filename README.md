@@ -40,7 +40,8 @@ _Map view for 'events'_
 - [ ] Display pins for list of events 
   - [x] Display all pins
   - [ ] Display pins for list of events based on zoom level 
-- [x] Add popup to display event detials for pins on click event 
+- [x] Add popup to display event detials for pins on tap event 
+- [ ] Bring pin to the center of the viewport on tap event 
 - [ ] Styling
 
 <br/>
@@ -81,6 +82,7 @@ _Create an 'event'_
 `src/pages/CreatedEvents.jsx` 
 
 _List view for 'created event's_ (NOT Implemented, not sure what to call 'events' tbh)
+- [ ] Add new tab for this route somehwere 
 - [ ] View list of created events 
 - [ ] Add update event functionality 
 - [ ] Add delete event functionality 
