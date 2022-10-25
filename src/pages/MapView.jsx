@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Box, Fab, ToggleButton } from "@mui/material";
+import { Box, ToggleButton } from "@mui/material";
 import { Add, PeopleOutline, Event } from "@mui/icons-material";
-import { styled } from "@mui/material/styles";
 
 import Map, { Marker, Popup } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -19,6 +18,15 @@ import {
   where,
   onSnapshot,
 } from "firebase/firestore";
+import AppBar from "@mui/material/AppBar";
+import SearchIcon from "@mui/icons-material/Search";
+import Toolbar from "@mui/material/Toolbar";
+import { StyledFab } from "../components/StyledFab";
+import {
+  Search,
+  SearchIconWrapper,
+  StyledInputBase,
+} from "../components/Search";
 
 const MAPBOX_TOKEN =
   "pk.eyJ1IjoibmljbHF0IiwiYSI6ImNsOWR6YWk1ejA0Y2UzcG95djhucHlqaTEifQ.gHrtX5AcWucEpY3W3n1DQQ";
@@ -72,18 +80,21 @@ const MapView = () => {
     console.log("called load events");
   }, [eventsSelected]);
 
-  const StyledFab = styled(Fab)({
-    position: "absolute",
-    zIndex: 1,
-    top: "auto",
-    bottom: 64,
-    left: 0,
-    right: 0,
-    margin: "0 auto",
-  });
-
   return (
     <>
+      <AppBar position="static">
+        <Toolbar>
+          <Search>
+            <SearchIconWrapper>
+              <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase
+              placeholder="Search…"
+              inputProps={{ "aria-label": "search" }}
+            />
+          </Search>
+        </Toolbar>
+      </AppBar>
       <Map
         initialViewState={{
           longitude: 103.7727,
@@ -130,7 +141,7 @@ const MapView = () => {
                   e.originalEvent.stopPropagation();
                   setPopupInfo(event);
                 }}
-              ></Marker>
+              />
             ))
           : null}
 
