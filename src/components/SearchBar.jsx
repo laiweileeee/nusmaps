@@ -9,7 +9,7 @@ import {
 } from "../components/Search";
 const SearchBar = ({ filterEvents, setSearchedVal }) => {
   return (
-    <Search>
+    <Search sx={{ marginTop: "5%" }}>
       <SearchIconWrapper>
         <SearchIcon type="submit" aria-label="search" />
       </SearchIconWrapper>
