@@ -115,18 +115,6 @@ export default function MenuAppBar() {
 
   return (
     <Box>
-      {/*<FormGroup>*/}
-      {/*  <FormControlLabel*/}
-      {/*    control={*/}
-      {/*      <Switch*/}
-      {/*        checked={auth}*/}
-      {/*        onChange={handleChange}*/}
-      {/*        aria-label="login switch"*/}
-      {/*      />*/}
-      {/*    }*/}
-      {/*    label={auth ? "Logout" : "Login"}*/}
-      {/*  />*/}
-      {/*</FormGroup>*/}
       <AppBar position="static" sx={{ pt: 1 }}>
         <Toolbar>
           <IconButton
@@ -136,7 +124,7 @@ export default function MenuAppBar() {
             aria-label="menu"
             sx={{ mr: 2 }}
           >
-            <MenuIcon />
+            {/* <MenuIcon /> */}
           </IconButton>
           <Search>
             <SearchIconWrapper>
