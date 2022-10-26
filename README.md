@@ -32,9 +32,6 @@ _Map view for 'events'_
   - [x] Display all pins
   - [ ] Display pins for list of events based on zoom level
 - [x] Add popup to display event detials for pins on tap event
-- [X] display current capcity, max capacity or nothing
-- [X] Add conditional logic to display 'Join Event' button (For events with some capacity)
-- [X] Add button logic for 'Join Event' (either increase 'capacity count', or add entire user object to an array
 - [ ] Styling
 
 <br/>
@@ -49,9 +46,6 @@ _Map view for 'events'_
 - [ ] Add sort by 'nearest first' (firestore doesn't support this, need to fetch all events and filter on client side)
 - [x] Display calculated distance from user
 - [x] Display calculated time from event start time
-- [X] display current capcity, max capacity or nothing
-- [X] Add conditional logic to display 'Join Event' button (For events with some capacity)
-- [X] Add button logic for 'Join Event' (either increase 'capacity count', or add entire user object to an array
 - [ ] Add support for event images (If we have time)
 - [ ] Styling
 
@@ -97,6 +91,18 @@ _Authenticated user details_
 _Allow searching_
 
 - [X] Search ListView
+- [ ] Styling
+
+<br/>
+
+`src/components/BasicCard.jsx`
+
+_Card to display event info_
+
+- [ ] Redirect to mapview and recenter on event
+- [X] Display current capcity, max capacity or nothing
+- [X] Add conditional logic to display 'Join Event' button (For events with some capacity)
+- [X] Add button logic for 'Join Event' (either increase 'capacity count', or add entire user object to an array
 - [ ] Styling
 
 <br/>
