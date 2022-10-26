@@ -79,6 +79,8 @@ const BasicCard = ({
   };
 
   function hasJoined() {
+    console.log("hasjoinedparticipants");
+    console.log(currentParticipants);
     return currentParticipants.includes(user.uid);
   }
 
@@ -99,7 +101,10 @@ const BasicCard = ({
     await updateDoc(docRef, {
       participants: arrayUnion(user.uid),
     });
-    setCurrentParticipants(currentParticipants.push(user.uid));
+    setCurrentParticipants([...currentParticipants, user.uid]);
+    // currentParticipants.push(user.uid);
+    console.log("NEW PARTICIPANTS");
+    console.log(currentParticipants);
     // loadEvents();
   };
 
@@ -109,6 +114,7 @@ const BasicCard = ({
   // console.log(!hasCapacityToJoin());
 
   console.log(canJoin());
+  console.log(currentParticipants);
 
   return (
     <Card
@@ -139,7 +145,7 @@ const BasicCard = ({
             color="text.secondary"
           >
             <Group fontSize="inherit" sx={{ mr: 0.5 }} />
-            {participants.length} / {capacity || "XX"}
+            {currentParticipants.length} / {capacity || "XX"}
           </Typography>
         </Box>
         <Typography variant="h6" component="div">

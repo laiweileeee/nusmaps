@@ -32,6 +32,9 @@ _Map view for 'events'_
   - [x] Display all pins
   - [ ] Display pins for list of events based on zoom level
 - [x] Add popup to display event detials for pins on tap event
+- [X] display current capcity, max capacity or nothing
+- [X] Add conditional logic to display 'Join Event' button (For events with some capacity)
+- [X] Add button logic for 'Join Event' (either increase 'capacity count', or add entire user object to an array
 - [ ] Styling
 
 <br/>

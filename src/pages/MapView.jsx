@@ -55,7 +55,7 @@ const MapView = () => {
       }
 
       const eventsList = [];
-      snapshot.forEach((doc) => eventsList.push(doc.data()));
+      snapshot.forEach((doc) => eventsList.push(doc));
       setEvents(eventsList);
 
       // snapshot.docChanges().forEach(function (change) {
@@ -132,12 +132,12 @@ const MapView = () => {
         {events
           ? events.map((event) => (
               <Marker
-                key={event.title}
-                longitude={event.longitude}
-                latitude={event.latitude}
+                key={event.data().title}
+                longitude={event.data().longitude}
+                latitude={event.data().latitude}
                 style={{ cursor: "pointer" }}
                 onClick={(e) => {
-                  console.log(event);
+                  console.log(event.data());
                   e.originalEvent.stopPropagation();
                   setPopupInfo(event);
                 }}
@@ -148,11 +148,16 @@ const MapView = () => {
         {popupInfo ? (
           <Popup
             anchor="top"
-            longitude={popupInfo.longitude}
-            latitude={popupInfo.latitude}
+            longitude={popupInfo.data().longitude}
+            latitude={popupInfo.data().latitude}
             onClose={() => setPopupInfo(null)}
           >
-            <BasicCard {...popupInfo} style={{ mb: "0 !important" }} />
+            <BasicCard
+              key={popupInfo.data().title}
+              eventUid={popupInfo.id}
+              {...popupInfo.data()}
+              style={{ mb: "0 !important" }}
+            />
           </Popup>
         ) : null}
       </Map>
