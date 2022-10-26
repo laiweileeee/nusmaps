@@ -97,7 +97,6 @@ _Authenticated user details_
 _Allow searching_
 
 - [X] Search ListView
-- [ ] Search MapView
 - [ ] Styling
 
 <br/>
