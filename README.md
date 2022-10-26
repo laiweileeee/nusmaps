@@ -13,69 +13,69 @@ _Theme object taken from [material ui](https://mui.com/material-ui/customization
 `src/contexts/AuthProvider.jsx`
 
 _React context provider to allow access to shared data_
-- [x] Provdie current user data from firebase auth to all child components 
+- [x] Provdie current user data from firebase auth to all child components
 
 <br/>
 
 `src/contexts/LocationProvider.jsx` (NOT Implemented)
 
-_React context provvider to allow access to shared data_ 
-- [x] Provdie current location data from maps api to all child components 
+_React context provvider to allow access to shared data_
+- [x] Provdie current location data from maps api to all child components
 
 <br/>
 
-`src/pages/MapView.jsx` 
+`src/pages/MapView.jsx`
 
 _Map view for 'events'_
 - [x] Add Mapbox map
-- [ ] Display pins for list of events 
+- [ ] Display pins for list of events
   - [x] Display all pins
-  - [ ] Display pins for list of events based on zoom level 
-- [x] Add popup to display event detials for pins on tap event 
+  - [ ] Display pins for list of events based on zoom level
+- [x] Add popup to display event detials for pins on tap event
 - [ ] Styling
 
 <br/>
 
-`src/pages/ListView.jsx` 
- 
+`src/pages/ListView.jsx`
+
  _List view for 'events'_
 - [x] View list of events
 - [x] Add sorting and filtering UI
 - [x] Add sorting and filtering firestore queries
 - [x] Add sort by 'earliest first'
-- [ ] Add sort by 'nearest first' (firestore doesn't support this, need to fetch all events and filter on client side) 
-- [x] Display calculated distance from user 
-- [x] Display calculated time from event start time 
-- [ ] Add conditional logic to display current capcity, max capacity or nothing
-- [ ] Add conditional logic to display 'Join Event' button (For events with some capacity) 
-- [ ] Add button logic for 'Join Event' (either increase 'capacity count', or add entire user object to an array 
-- [ ] Add support for event images (If we have time) 
+- [ ] Add sort by 'nearest first' (firestore doesn't support this, need to fetch all events and filter on client side)
+- [x] Display calculated distance from user
+- [x] Display calculated time from event start time
+- [X] display current capcity, max capacity or nothing
+- [X] Add conditional logic to display 'Join Event' button (For events with some capacity)
+- [X] Add button logic for 'Join Event' (either increase 'capacity count', or add entire user object to an array
+- [ ] Add support for event images (If we have time)
 - [ ] Styling
 
 
 <br/>
 
-`src/pages/Create.jsx` 
+`src/pages/Create.jsx`
 
 _Create an 'event'_
-- [x] Add create event functionality 
+- [x] Add create event functionality
 - [ ] Add location input using maps API (user needs to drop location pin AND enter location details separately (e.g., COM3 Seminar Room 1))
-  - [ ] Allow searching for coords (forward geocoding) 
+  - [ ] Allow searching for coords (forward geocoding)
 - [ ] Add input validation for form fields
 - [ ] Make 'capacity' field optional (this will determine if users can or cannot join an event)
-- [x] Repalce `<NativeSelect/>` component with toggle buttons 
-- [ ] Move entire page to a dialog/ modal if got time 
+- [x] Repalce `<NativeSelect/>` component with toggle buttons
+- [ ] Move entire page to a dialog/ modal if got time
 - [ ] Styling
 
 <br/>
 
-`src/pages/CreatedEvents.jsx` 
+`src/pages/CreatedEvents.jsx`
 
 _List view for 'created event's_ (NOT Implemented, not sure what to call 'events' tbh)
-- [ ] Add new tab for this route somehwere 
-- [ ] View list of created events 
-- [ ] Add update event functionality 
-- [ ] Add delete event functionality 
+- [ ] Add new tab for this route somehwere
+- [ ] View list of created events
+- [ ] Add update event functionality
+- [ ] Add delete event functionality
 - [ ] Styling
 
 <br/>
@@ -83,13 +83,13 @@ _List view for 'created event's_ (NOT Implemented, not sure what to call 'events
 `src/pages/Profile.jsx`
 
 _Authenticated user details_
-- [ ] Styling: clean up ui, add more user data if needed 
+- [ ] Styling: clean up ui, add more user data if needed
 
 <br/>
 
 ## Firestore
-- [ ] Modify rules to only allow authenticated users to add/ edit events 
-- [ ] Add indexes for sorting and filtering queries   
+- [ ] Modify rules to only allow authenticated users to add/ edit events
+- [ ] Add indexes for sorting and filtering queries
 
 <br/>
 
@@ -108,7 +108,7 @@ cd nusmaps
 npm install
 ```
 
-Create a `.env` in the root folder and provide your secrets from firebase console 
+Create a `.env` in the root folder and provide your secrets from firebase console
 
 Example:
 
