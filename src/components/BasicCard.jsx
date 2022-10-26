@@ -18,6 +18,9 @@ import { styled } from "@mui/material/styles";
 import moment from "moment";
 import { LngLat } from "mapbox-gl";
 import { LocationContext } from "../contexts/LocationProvider";
+import { doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { db } from "../firebase";
+import { AuthContext } from "../contexts/AuthProvider";
 
 const dateTimeOptions = {
   year: "numeric",
@@ -56,19 +59,56 @@ const BasicCard = ({
   startDateTime,
   endDateTime,
   location,
-  longitude,
-  latitude,
+  longitude = 0,
+  latitude = 0,
   capacity,
+  participants = [],
+  eventUid,
+  loadEvents,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const { currentLocation } = useContext(LocationContext);
+  const [currentParticipants, setCurrentParticipants] = useState(participants);
   const distanceFromUser = (
     new LngLat(longitude, latitude).distanceTo(currentLocation) / 1000
   ).toFixed(2);
+  const { user, auth } = useContext(AuthContext);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
+
+  function hasJoined() {
+    return currentParticipants.includes(user.uid);
+  }
+
+  function hasCapacityToJoin() {
+    if (capacity < 1) {
+      return true;
+    }
+    return capacity > currentParticipants.length;
+  }
+
+  function canJoin() {
+    return !hasJoined() && hasCapacityToJoin();
+  }
+  const doJoin = async () => {
+    const docRef = doc(db, "events", eventUid);
+
+    // Set the "capital" field of the city 'DC'
+    await updateDoc(docRef, {
+      participants: arrayUnion(user.uid),
+    });
+    setCurrentParticipants(currentParticipants.push(user.uid));
+    // loadEvents();
+  };
+
+  // console.log("participants");
+  // console.log(participants);
+  // console.log(!hasJoined());
+  // console.log(!hasCapacityToJoin());
+
+  console.log(canJoin());
 
   return (
     <Card
@@ -99,7 +139,7 @@ const BasicCard = ({
             color="text.secondary"
           >
             <Group fontSize="inherit" sx={{ mr: 0.5 }} />
-            {capacity || "xx"}
+            {participants.length} / {capacity || "XX"}
           </Typography>
         </Box>
         <Typography variant="h6" component="div">
@@ -165,9 +205,25 @@ const BasicCard = ({
           </CardContent>
           <CardActions>
             <Box sx={{ paddingLeft: 1, paddingRight: 1, paddingBottom: 2 }}>
-              <Button variant="outlined">
-                {type === "Event" ? "Join Event" : "Join Group"}
-              </Button>
+              {user ? (
+                <Button
+                  onClick={() => {
+                    doJoin();
+                  }}
+                  variant="outlined"
+                  disabled={!canJoin()}
+                >
+                  {hasCapacityToJoin()
+                    ? hasJoined()
+                      ? "Joined"
+                      : type === "Event"
+                      ? "Join Event"
+                      : "Join Group"
+                    : "Full"}
+                </Button>
+              ) : (
+                <div></div>
+              )}
             </Box>
           </CardActions>
         </Box>

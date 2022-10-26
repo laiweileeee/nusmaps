@@ -1,5 +1,6 @@
 import React, { useContext, useState } from "react";
 import { GoogleAuthProvider, signInWithRedirect, signOut } from "firebase/auth";
+import LoginButton from "../components/LoginButton.jsx";
 
 import {
   Box,
@@ -17,8 +18,6 @@ const Profile = () => {
   const { user, auth } = useContext(AuthContext);
   const [anchorEl, setAnchorEl] = useState(null);
 
-
-
   async function signOutUser() {
     // Sign out of Firebase.
     await signOut(auth);
@@ -32,7 +31,6 @@ const Profile = () => {
   console.log(user);
 
   return (
-
     <Box
       sx={{
         flexGrow: 1,
@@ -46,8 +44,16 @@ const Profile = () => {
         width: "100%",
       }}
     >
-      <Stack direction="column" spacing={6} sx={{justifyContent: "center", alignItems: "center"}}>
-        <Stack direction="row" spacing={3} sx={{justifyContent: "center", alignItems: "center"}}>
+      <Stack
+        direction="column"
+        spacing={6}
+        sx={{ justifyContent: "center", alignItems: "center" }}
+      >
+        <Stack
+          direction="row"
+          spacing={3}
+          sx={{ justifyContent: "center", alignItems: "center" }}
+        >
           <Avatar src={user?.photoURL} sx={{ width: 55, height: 55 }} />
           <Stack direction="column" spacing={1}>
             <Typography
@@ -66,26 +72,25 @@ const Profile = () => {
         </Stack>
 
         <Stack>
-            <Typography
-              sx={{ fontSize: "medium", maxWidth: 200, mb: 0 }}
-              color="text.primary"
-            >
-              OTHER PROFILE INFO
-            </Typography>
-            <Typography
-              sx={{ fontSize: "medium", maxWidth: 200, mb: 0 }}
-              color="text.primary"
-            >
-              {user?.email}
-            </Typography>
-            <Button variant="outlined" color="error" onClick={handleSignOut}>
+          <Typography
+            sx={{ fontSize: "medium", maxWidth: 200, mb: 0 }}
+            color="text.primary"
+          >
+            OTHER PROFILE INFO
+          </Typography>
+          <Typography
+            sx={{ fontSize: "medium", maxWidth: 200, mb: 0 }}
+            color="text.primary"
+          >
+            {user?.email}
+          </Typography>
+          {/* <Button variant="outlined" color="error" onClick={handleSignOut}>
               Log Out
-            </Button>
+            </Button> */}
+          <LoginButton />
         </Stack>
       </Stack>
-
     </Box>
-
   );
 };
 

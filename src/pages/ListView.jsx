@@ -64,7 +64,7 @@ const ListView = () => {
       }
 
       const eventsList = [];
-      snapshot.forEach((doc) => eventsList.push(doc.data()));
+      snapshot.forEach((doc) => eventsList.push(doc));
       setEvents(eventsList);
 
       // snapshot.docChanges().forEach(function (change) {
@@ -206,7 +206,14 @@ const ListView = () => {
               }}
             >
               {events.length > 0 ? (
-                events.map((data) => <BasicCard key={data.title} {...data} />)
+                events.map((data) => (
+                  <BasicCard
+                    key={data.data().title}
+                    {...data.data()}
+                    eventUid={data.id}
+                    loadEvents={loadEvents}
+                  />
+                ))
               ) : (
                 <Typography variant="h6" component="div">
                   {eventsSelected ? "No events found." : "No groups found."}
