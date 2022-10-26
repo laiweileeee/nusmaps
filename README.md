@@ -87,6 +87,18 @@ _Authenticated user details_
 
 <br/>
 
+<br/>
+
+`src/components/SearchBar.jsx`
+
+_Allow searching_
+
+- [X] Search ListView
+- [ ] Search MapView
+- [ ] Styling
+
+<br/>
+
 ## Firestore
 - [ ] Modify rules to only allow authenticated users to add/ edit events
 - [ ] Add indexes for sorting and filtering queries

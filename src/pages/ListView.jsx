@@ -33,6 +33,8 @@ import {
   SearchIconWrapper,
   StyledInputBase,
 } from "../components/Search";
+
+import SearchBar from "../components/SearchBar";
 import { StyledFab } from "../components/StyledFab";
 
 const ListView = () => {
@@ -43,6 +45,17 @@ const ListView = () => {
   const [earliestSelected, setEarliestSelected] = useState(true);
   const [value, setValue] = React.useState(0);
   const [open, setOpen] = React.useState(false);
+  // const dataFiltered = filterData(searchQuery, events);
+  const [searchedVal, setSearchedVal] = useState("");
+
+  function filterEvents(query) {
+    if (!query) {
+    } else {
+      setEvents(
+        events.filter((d) => d.data().title.toLowerCase().includes(query))
+      );
+    }
+  }
 
   // Loads events and listens for upcoming ones.
   const loadEvents = () => {
@@ -132,7 +145,7 @@ const ListView = () => {
     <>
       <AppBar position="static">
         <Toolbar>
-          <Search>
+          {/* <Search>
             <SearchIconWrapper>
               <SearchIcon />
             </SearchIconWrapper>
@@ -140,7 +153,11 @@ const ListView = () => {
               placeholder="Search…"
               inputProps={{ "aria-label": "search" }}
             />
-          </Search>
+          </Search> */}
+          <SearchBar
+            setSearchedVal={setSearchedVal}
+            filterEvents={filterEvents}
+          />
         </Toolbar>
         <Tabs
           value={value}
@@ -206,14 +223,25 @@ const ListView = () => {
               }}
             >
               {events.length > 0 ? (
-                events.map((data) => (
-                  <BasicCard
-                    key={data.data().title}
-                    {...data.data()}
-                    eventUid={data.id}
-                    loadEvents={loadEvents}
-                  />
-                ))
+                events
+                  .filter(
+                    (event) =>
+                      // note that I've incorporated the searchedVal length check here
+                      !searchedVal.length ||
+                      event
+                        .data()
+                        .title.toString()
+                        .toLowerCase()
+                        .includes(searchedVal.toString().toLowerCase())
+                  )
+                  .map((data) => (
+                    <BasicCard
+                      key={data.data().title}
+                      {...data.data()}
+                      eventUid={data.id}
+                      loadEvents={loadEvents}
+                    />
+                  ))
               ) : (
                 <Typography variant="h6" component="div">
                   {eventsSelected ? "No events found." : "No groups found."}
