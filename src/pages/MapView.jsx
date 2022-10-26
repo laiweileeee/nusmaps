@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Typography from "@mui/material/Typography";
 
 import { Box, ToggleButton } from "@mui/material";
 import { Add, PeopleOutline, Event } from "@mui/icons-material";
+import { Map as MapIcon } from "@mui/icons-material";
 
 import Map, { Marker, Popup } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -83,8 +85,20 @@ const MapView = () => {
   return (
     <>
       <AppBar position="static">
-        <Toolbar>
-          <Search>
+        <Toolbar sx={{ justifyContent: "center", alignItems: "center" }}>
+          {" "}
+          <MapIcon sx={{ marginRight: "2%" }} />
+          <Typography
+            sx={{
+              justifyContent: "start",
+              fontSize: "large",
+              maxWidth: 200,
+              mb: 0,
+            }}
+          >
+            NUS MAPS
+          </Typography>
+          {/* <Search>
             <SearchIconWrapper>
               <SearchIcon />
             </SearchIconWrapper>
@@ -92,7 +106,7 @@ const MapView = () => {
               placeholder="Search…"
               inputProps={{ "aria-label": "search" }}
             />
-          </Search>
+          </Search> */}
         </Toolbar>
       </AppBar>
       <Map
