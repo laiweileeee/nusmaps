@@ -113,8 +113,8 @@ const BasicCard = ({
   // console.log(!hasJoined());
   // console.log(!hasCapacityToJoin());
 
-  console.log(canJoin());
-  console.log(currentParticipants);
+  // console.log(canJoin());
+  // console.log(currentParticipants);
 
   return (
     <Card
