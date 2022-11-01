@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { db } from "../firebase";
@@ -13,6 +13,7 @@ import {
   Box,
   Button,
   FormControl,
+  FormHelperText,
   IconButton,
   InputAdornment,
   InputLabel,
@@ -21,100 +22,47 @@ import {
   TextField,
   ToggleButton,
   ToggleButtonGroup,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { Place } from "@mui/icons-material";
 
 import { NumericFormat } from "react-number-format";
 import Map, { Marker } from "react-map-gl";
+import { useForm, Controller } from "react-hook-form";
+import moment from "moment";
+
+import { Geocoder } from "../components/Geocoder";
+import { AuthContext } from "../contexts/AuthProvider";
 
 const MAPBOX_TOKEN =
   "pk.eyJ1IjoibmljbHF0IiwiYSI6ImNsOWR6YWk1ejA0Y2UzcG95djhucHlqaTEifQ.gHrtX5AcWucEpY3W3n1DQQ";
 
-const useFormData = () => {
-  const [type, setType] = useState("Event");
-  const [title, setTitle] = useState("");
-  const [longitude, setLongitude] = useState(103.7769);
-  const [latitude, setLatitude] = useState(1.2959);
-  const [location, setLocation] = useState("");
-  const [startDateTime, setStartDateTime] = useState();
-  const [endDateTime, setEndDateTime] = useState();
-  const [description, setDescription] = useState("");
-  const [capacity, setCapacity] = useState();
-
-  return {
-    type,
-    setType,
-    title,
-    setTitle,
-    longitude,
-    setLongitude,
-    latitude,
-    setLatitude,
-    location,
-    setLocation,
-    startDateTime,
-    setStartDateTime,
-    endDateTime,
-    setEndDateTime,
-    description,
-    setDescription,
-    capacity,
-    setCapacity,
-  };
-};
-
-// TODO: add input validation
 const Create = () => {
-  const {
-    type,
-    setType,
-    title,
-    setTitle,
-    longitude,
-    setLongitude,
-    latitude,
-    setLatitude,
-    location,
-    setLocation,
-    startDateTime,
-    setStartDateTime,
-    endDateTime,
-    setEndDateTime,
-    description,
-    setDescription,
-    capacity,
-    setCapacity,
-  } = useFormData();
+  const { user } = useContext(AuthContext);
+
+  const { handleSubmit, control, watch } = useForm();
+  const watchFields = watch(["startDateTime", "endDateTime"]);
 
   const navigate = useNavigate();
+  const [showTooltip, setShowTooltip] = useState(false);
+
   const [displayMap, setDisplayMap] = useState(false);
+  const [longitude, setLongitude] = useState(103.7769);
+  const [latitude, setLatitude] = useState(1.2959);
 
-  const handleSubmit = async () => {
-    console.log({
-      title,
-      description,
-      capacity,
-      type,
-      location,
-      longitude,
-      latitude,
-      startDateTime: Timestamp.fromDate(new Date(startDateTime)),
-      endDateTime: Timestamp.fromDate(new Date(endDateTime)),
-      timestamp: serverTimestamp(),
-    });
-
+  const onSubmit = async (data) => {
     // Add a new document in collection "events"
     await addDoc(collection(db, "events"), {
-      title,
-      description,
-      capacity,
-      type,
-      location,
+      title: data.title,
+      description: data.description,
+      capacity: data.capacity,
+      type: data.type,
+      location: data.location,
       longitude,
       latitude,
-      startDateTime: Timestamp.fromDate(new Date(startDateTime)),
-      endDateTime: Timestamp.fromDate(new Date(endDateTime)),
+      startDateTime: Timestamp.fromDate(new Date(data.startDateTime)),
+      endDateTime: Timestamp.fromDate(new Date(data.endDateTime)),
       timestamp: serverTimestamp(),
     });
 
@@ -136,140 +84,218 @@ const Create = () => {
     );
   });
 
-  console.log("states ", {
-    type,
-    title,
-    description,
-    longitude,
-    latitude,
-    location,
-    startDateTime,
-    endDateTime,
-    capacity,
-  });
-
   return (
-    <Box
-      sx={{
-        flexGrow: 1,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        paddingBottom: 10,
-      }}
-    >
+    <form onSubmit={handleSubmit(onSubmit)}>
       <Box
-        component="form"
         sx={{
           "& .MuiTextField-root": { mb: 2, width: "100%" },
+          flexGrow: 1,
           display: "flex",
           flexDirection: "column",
+          alignItems: "center",
+          paddingBottom: 10,
           minWidth: 260,
-          width: "90%",
+          paddingRight: "10%",
+          paddingLeft: "10%",
         }}
       >
-        <Typography variant="h5" sx={{ paddingTop: 2, paddingBottom: 1 }}>
+        <Typography
+          variant="h5"
+          sx={{ paddingTop: 2, paddingBottom: 1, alignSelf: "flex-start" }}
+        >
           Create New Event
         </Typography>
-        <ToggleButtonGroup
-          value={type}
-          exclusive
-          onChange={(e) => {
-            setType(e.target.value);
-          }}
-          fullWidth
-          sx={{ marginBottom: 2 }}
-        >
-          <ToggleButton value="Event">Event</ToggleButton>
-          <ToggleButton value="Group">Group</ToggleButton>
-        </ToggleButtonGroup>
-        <TextField
-          id="outlined-basic"
-          label="Title"
-          value={title}
-          variant="outlined"
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <TextField
-          id="outlined-multiline-flexible"
-          label="Description"
-          multiline
-          maxRows={4}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <TextField
-          id="start-datetime-local"
-          label="Start Date and Time"
-          type="datetime-local"
-          InputLabelProps={{
-            shrink: true,
-          }}
-          // only allow future dates
-          inputProps={{
-            min: new Date().toISOString().substring(0, 16),
-          }}
-          value={startDateTime}
-          onChange={(e) => {
-            setStartDateTime(e.target.value);
-          }}
-        />
-        {/* TODO: valdiate date input */}
-        <TextField
-          id="end-datetime-local"
-          label="End Date and Time"
-          type="datetime-local"
-          // disable end date time input until user enters start date time
-          disabled={startDateTime ? false : true}
-          InputLabelProps={{
-            shrink: true,
-          }}
-          inputProps={{
-            min: startDateTime,
-          }}
-          value={endDateTime}
-          onChange={(e) => setEndDateTime(e.target.value)}
-        />
-        <FormControl variant="outlined" sx={{ marginBottom: 2 }}>
-          <InputLabel htmlFor="location">Location</InputLabel>
-          <OutlinedInput
-            id="location"
-            value={location}
-            label="Password"
-            endAdornment={
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={() => {
-                    setDisplayMap(true);
-                  }}
-                  edge="end"
-                >
-                  <Place />
-                </IconButton>
-              </InputAdornment>
-            }
-            onChange={(e) => {
-              setLocation(e.target.value);
-            }}
-          />
-        </FormControl>
 
-        <TextField
-          label="Capacity"
-          value={capacity}
-          onBlur={(e) => setCapacity(e.target.value)}
-          name="numberformat"
-          id="outlined-basic"
-          variant="outlined"
-          InputProps={{
-            inputComponent: NumberFormatCustom,
+        <Controller
+          name="type"
+          control={control}
+          defaultValue="Event"
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
+            <ToggleButtonGroup
+              value={value}
+              exclusive
+              onChange={(value) => {
+                onChange(value);
+              }}
+              fullWidth
+              sx={{ marginBottom: 2 }}
+            >
+              <ToggleButton value="Event">Event</ToggleButton>
+              <ToggleButton value="Group">Group</ToggleButton>
+            </ToggleButtonGroup>
+          )}
+          rules={{ required: "Type is required" }}
+        />
+
+        <Controller
+          name="title"
+          control={control}
+          defaultValue=""
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
+            <TextField
+              id="outlined-basic"
+              label="Title"
+              variant="outlined"
+              value={value}
+              onChange={onChange}
+              error={!!error}
+              helperText={error ? error.message : null}
+            />
+          )}
+          rules={{ required: "Title is required" }}
+        />
+
+        <Controller
+          name="description"
+          control={control}
+          defaultValue=""
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
+            <TextField
+              id="outlined-multiline-flexible"
+              label="Description"
+              variant="outlined"
+              multiline
+              maxRows={4}
+              value={value}
+              onChange={onChange}
+              error={!!error}
+              helperText={error ? error.message : null}
+            />
+          )}
+          rules={{ required: "Description is required" }}
+        />
+
+        <Controller
+          name="startDateTime"
+          control={control}
+          defaultValue=""
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
+            <TextField
+              id="start-datetime-local"
+              label="Start Date and Time"
+              type="datetime-local"
+              InputLabelProps={{
+                shrink: true,
+              }}
+              inputProps={{
+                min: new Date().toISOString().substring(0, 16),
+              }}
+              value={value}
+              onChange={onChange}
+              error={!!error}
+              helperText={error ? error.message : null}
+            />
+          )}
+          rules={{
+            required: "Start date and time is required",
+            validate: (value) =>
+              moment(value) < moment(watchFields[1]) ||
+              "Start date and time must be before end date and time",
           }}
         />
+
+        <Controller
+          name="endDateTime"
+          control={control}
+          defaultValue=""
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
+            <TextField
+              id="end-datetime-local"
+              label="End Date and Time"
+              type="datetime-local"
+              InputLabelProps={{
+                shrink: true,
+              }}
+              inputProps={{
+                min: new Date().toISOString().substring(0, 16),
+              }}
+              value={value}
+              onChange={onChange}
+              error={!!error}
+              helperText={error ? error.message : null}
+            />
+          )}
+          rules={{
+            required: "End date and time is required",
+            validate: (value) =>
+              moment(value) > moment(watchFields[0]) ||
+              "End date and time must be after start date and time",
+          }}
+        />
+
+        <Controller
+          name="location"
+          control={control}
+          defaultValue=""
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
+            <Tooltip
+              title="Please input location (eg. COM2 Seminar Room 1) and drop location pin"
+              sx={{ width: "90%" }}
+              open={showTooltip}
+              arrow={true}
+            >
+              <FormControl
+                variant="outlined"
+                sx={{ marginBottom: 2 }}
+                onClick={() => setShowTooltip(true)}
+                onBlur={() => setShowTooltip(false)}
+                fullWidth
+                error={!!error}
+              >
+                <InputLabel htmlFor="location">Location</InputLabel>
+                <OutlinedInput
+                  id="location"
+                  label="Password"
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => {
+                          setDisplayMap(true);
+                          setShowTooltip(false);
+                        }}
+                        edge="end"
+                      >
+                        <Place />
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                  value={value}
+                  onChange={onChange}
+                  autoComplete="off"
+                />
+                <FormHelperText>{error ? error.message : null}</FormHelperText>
+              </FormControl>
+            </Tooltip>
+          )}
+          rules={{ required: "Location is required" }}
+        />
+
+        <Controller
+          name="capacity"
+          control={control}
+          defaultValue=""
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
+            <TextField
+              id="outlined-basic"
+              label="Capacity"
+              variant="outlined"
+              name="numberformat"
+              InputProps={{
+                inputComponent: NumberFormatCustom,
+              }}
+              value={value}
+              onChange={onChange}
+              error={!!error}
+              helperText={error ? error.message : null}
+            />
+          )}
+          rules={{ required: "End date and time is required" }}
+        />
+
+        <Button type="submit" variant="contained">
+          Create Event
+        </Button>
       </Box>
-
-      <Button variant="contained" onClick={handleSubmit}>
-        Create Event
-      </Button>
 
       <Modal
         open={displayMap}
@@ -292,8 +318,10 @@ const Create = () => {
             }}
             mapStyle="mapbox://styles/mapbox/streets-v9"
             mapboxAccessToken={MAPBOX_TOKEN}
+            reuseMaps
             style={{ borderRadius: 10, marginBottom: 8 }}
           >
+            <Geocoder position="top-left" />
             <Marker
               longitude={longitude}
               latitude={latitude}
@@ -315,7 +343,7 @@ const Create = () => {
           </Button>
         </>
       </Modal>
-    </Box>
+    </form>
   );
 };
 

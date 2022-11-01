@@ -56,11 +56,12 @@ _Map view for 'events'_
 
 _Create an 'event'_
 - [x] Add create event functionality
-- [ ] Add location input using maps API (user needs to drop location pin AND enter location details separately (e.g., COM3 Seminar Room 1))
-  - [ ] Allow searching for coords (forward geocoding)
-- [ ] Add input validation for form fields
+- [x] Add location input using maps API (user needs to drop location pin AND enter location details separately (e.g., COM2 Seminar Room 1))
+  - [x] Allow searching for coords (forward geocoding)
+- [x] Add input validation for form fields
+- [ ] Add creator
 - [ ] Make 'capacity' field optional (this will determine if users can or cannot join an event)
-- [x] Repalce `<NativeSelect/>` component with toggle buttons
+- [x] Replace `<NativeSelect/>` component with toggle buttons
 - [ ] Move entire page to a dialog/ modal if got time
 - [ ] Styling
 
