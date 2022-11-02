@@ -37,6 +37,8 @@ const MAPBOX_TOKEN =
 
 const MapView = () => {
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+
   const [viewState, setViewState] = useState({
     longitude: 103.7727,
     latitude: 1.2907,
@@ -205,9 +207,11 @@ const MapView = () => {
         </MenuItem>
       </Menu>
 
-      <StyledFab color="secondary" onClick={() => navigate("/create")}>
-        <Add />
-      </StyledFab>
+      {user ? (
+        <StyledFab color="secondary" onClick={() => navigate("/create")}>
+          <Add />
+        </StyledFab>
+      ) : null}
     </>
   );
 };
