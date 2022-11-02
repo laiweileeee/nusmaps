@@ -13,7 +13,7 @@ import { Add } from "@mui/icons-material";
 import { Map as MapIcon } from "@mui/icons-material";
 import TuneIcon from "@mui/icons-material/Tune";
 
-import Map, { Marker, Popup } from "react-map-gl";
+import Map, { Marker, Popup, GeolocateControl } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./MapView.css";
 
@@ -127,6 +127,7 @@ const MapView = () => {
         mapboxAccessToken={MAPBOX_TOKEN}
         reuseMaps
       >
+        <GeolocateControl showAccuracyCircle={false} />
         <Geocoder position="top-left" />
 
         {events

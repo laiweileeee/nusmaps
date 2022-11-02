@@ -58,3 +58,9 @@
     border-radius: 4px;
   }
 }
+
+@media screen and (max-width: 640px) {
+  .mapboxgl-ctrl.mapboxgl-ctrl-group {
+    margin-top: 70px;
+  }
+}
