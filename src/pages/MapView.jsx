@@ -1,16 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import Typography from "@mui/material/Typography";
-
-import { Box, ToggleButton } from "@mui/material";
-import { Add, PeopleOutline, Event } from "@mui/icons-material";
+import {
+  Box,
+  Checkbox,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
+import { Add } from "@mui/icons-material";
 import { Map as MapIcon } from "@mui/icons-material";
+import TuneIcon from "@mui/icons-material/Tune";
 
-import Map, { Marker, Popup } from "react-map-gl";
+import Map, { Marker, Popup, GeolocateControl } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./MapView.css";
 
 import BasicCard from "../components/BasicCard";
+import { Geocoder } from "../components/Geocoder";
 
 import { db } from "../firebase";
 import {
@@ -21,34 +29,61 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import AppBar from "@mui/material/AppBar";
-import SearchIcon from "@mui/icons-material/Search";
 import Toolbar from "@mui/material/Toolbar";
 import { StyledFab } from "../components/StyledFab";
-import {
-  Search,
-  SearchIconWrapper,
-  StyledInputBase,
-} from "../components/Search";
+
+import { AuthContext } from "../contexts/AuthProvider";
 
 const MAPBOX_TOKEN =
   "pk.eyJ1IjoibmljbHF0IiwiYSI6ImNsOWR6YWk1ejA0Y2UzcG95djhucHlqaTEifQ.gHrtX5AcWucEpY3W3n1DQQ";
 
 const MapView = () => {
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+
+  const [viewState, setViewState] = useState({
+    longitude: 103.7727,
+    latitude: 1.2907,
+    zoom: 13,
+  });
   const [events, setEvents] = useState([]); //TODO: rename events to something else
   const [eventsSelected, setEventsSelected] = useState(true);
+  const [groupsSelected, setGroupsSelected] = useState(true);
   const [popupInfo, setPopupInfo] = useState();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleMove = useCallback((evt) => {
+    setViewState(evt.viewState);
+  }, []);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   // Loads events and listens for upcoming ones.
   const loadEvents = () => {
-    const type = eventsSelected ? "Event" : "Group";
+    let recentEventsQuery;
 
+    if (eventsSelected && groupsSelected) {
+      recentEventsQuery = query(
+        collection(db, "events"),
+        where("startDateTime", ">=", Timestamp.now())
+      );
+    } else {
+      const type = eventsSelected ? "Event" : "Group";
+
+      recentEventsQuery = query(
+        collection(db, "events"),
+        where("type", "==", type),
+        where("startDateTime", ">=", Timestamp.now())
+      );
+    }
     // Create the query to load the last 12 documents and listen for new ones.
-    const recentEventsQuery = query(
-      collection(db, "events"),
-      where("type", "==", type),
-      where("startDateTime", ">=", Timestamp.now())
-    );
 
     // Start listening to the query.
     onSnapshot(recentEventsQuery, function (snapshot) {
@@ -59,32 +94,17 @@ const MapView = () => {
       const eventsList = [];
       snapshot.forEach((doc) => eventsList.push(doc));
       setEvents(eventsList);
-
-      // snapshot.docChanges().forEach(function (change) {
-      //   if (change.type === "removed") {
-      //     const newEvents = events.filter(
-      //       (event) => event.id !== change.doc.id
-      //     );
-      //     setEvents(newEvents);
-      //   }
-      //   if (change.type === "modified") {
-      //     console.log("Modified event: ", change.doc.data());
-      //   }
-      //   if (change.type === "removed") {
-      //     console.log("Removed event: ", change.doc.data());
-      //   }
-      // });
     });
   };
 
   useEffect(() => {
     loadEvents();
     console.log("called load events");
-  }, [eventsSelected]);
+  }, [eventsSelected, groupsSelected]);
 
   return (
     <>
-      <AppBar position="static">
+      {/* <AppBar position="static">
         <Toolbar sx={{ justifyContent: "center", alignItems: "center" }}>
           {" "}
           <MapIcon sx={{ marginRight: "2%" }} />
@@ -98,50 +118,17 @@ const MapView = () => {
           >
             NUS MAPS
           </Typography>
-          {/* <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ "aria-label": "search" }}
-            />
-          </Search> */}
         </Toolbar>
-      </AppBar>
+      </AppBar> */}
       <Map
-        initialViewState={{
-          longitude: 103.7727,
-          latitude: 1.2907,
-          zoom: 13,
-        }}
+        {...viewState}
+        onMove={handleMove}
         mapStyle="mapbox://styles/mapbox/streets-v9"
         mapboxAccessToken={MAPBOX_TOKEN}
+        reuseMaps
       >
-        <Box sx={{ display: "flex", justifyContent: "center", padding: 1 }}>
-          <ToggleButton
-            sx={{ color: "black", marginRight: 1 }}
-            selected={eventsSelected}
-            onChange={() => {
-              setEventsSelected(true);
-              setPopupInfo(null);
-            }}
-          >
-            <Event sx={{ marginRight: 1 }} />
-            Events
-          </ToggleButton>
-          <ToggleButton
-            selected={!eventsSelected}
-            onChange={() => {
-              setEventsSelected(false);
-              setPopupInfo(null);
-            }}
-            sx={{ color: "black" }}
-          >
-            <PeopleOutline sx={{ marginRight: 1 }} />
-            Groups
-          </ToggleButton>
-        </Box>
+        <GeolocateControl showAccuracyCircle={false} />
+        <Geocoder position="top-left" />
 
         {events
           ? events.map((event) => (
@@ -151,7 +138,6 @@ const MapView = () => {
                 latitude={event.data().latitude}
                 style={{ cursor: "pointer" }}
                 onClick={(e) => {
-                  console.log(event.data());
                   e.originalEvent.stopPropagation();
                   setPopupInfo(event);
                 }}
@@ -175,9 +161,60 @@ const MapView = () => {
           </Popup>
         ) : null}
       </Map>
-      <StyledFab color="secondary" onClick={() => navigate("/create")}>
-        <Add />
-      </StyledFab>
+      <Box className="filter" onClick={handleClick}>
+        <TuneIcon sx={{ color: "black" }} />
+      </Box>
+      <Menu
+        id="basic-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+      >
+        <MenuItem
+          onClick={() => {
+            if (eventsSelected) {
+              setGroupsSelected(true);
+            }
+            setEventsSelected(!eventsSelected);
+          }}
+        >
+          <ListItemIcon>
+            <Checkbox
+              edge="start"
+              checked={eventsSelected}
+              tabIndex={-1}
+              disableRipple
+              inputProps={{ "aria-labelledby": "Events" }}
+            />
+          </ListItemIcon>
+          <ListItemText primary={"Events"} />
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            if (groupsSelected) {
+              setEventsSelected(true);
+            }
+            setGroupsSelected(!groupsSelected);
+          }}
+        >
+          <ListItemIcon>
+            <Checkbox
+              edge="start"
+              checked={groupsSelected}
+              tabIndex={-1}
+              disableRipple
+              inputProps={{ "aria-labelledby": "Groups" }}
+            />
+          </ListItemIcon>
+          <ListItemText primary={"Groups"} />
+        </MenuItem>
+      </Menu>
+
+      {user ? (
+        <StyledFab color="secondary" onClick={() => navigate("/create")}>
+          <Add />
+        </StyledFab>
+      ) : null}
     </>
   );
 };

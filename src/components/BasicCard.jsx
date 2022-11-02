@@ -55,7 +55,7 @@ const BasicCard = ({
   type,
   title,
   description,
-  creator,
+  creatorName,
   startDateTime,
   endDateTime,
   location,
@@ -156,7 +156,7 @@ const BasicCard = ({
           sx={{ fontSize: "medium", maxWidth: 200, mb: 2 }}
           color="text.secondary"
         >
-          by {creator || "Creator"}
+          by {creatorName || "Creator"}
         </Typography>
         <Box
           component="div"

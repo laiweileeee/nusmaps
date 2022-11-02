@@ -18,3 +18,49 @@
 .mapboxgl-popup-close-button {
   display: none;
 }
+
+.mapboxgl-ctrl-top-left {
+  width: calc(100% - 20px);
+}
+
+.filter {
+  height: 50px;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+  top: 10px;
+  right: 10px;
+  padding: 12px;
+  position: absolute;
+  background-color: white;
+  border-radius: 4px;
+}
+
+@media screen and (min-width: 640px) {
+  .mapboxgl-ctrl-geocoder.mapboxgl-ctrl {
+    width: 360px;
+    font-size: 15px;
+    line-height: 20px;
+    max-width: 360px;
+  }
+
+  .filter {
+    height: 36px;
+    width: 36px;
+    display: flex;
+    align-items: center;
+    z-index: 10;
+    top: 10px;
+    left: 325px;
+    padding: 12px;
+    position: absolute;
+    background-color: white;
+    border-radius: 4px;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .mapboxgl-ctrl.mapboxgl-ctrl-group {
+    margin-top: 70px;
+  }
+}

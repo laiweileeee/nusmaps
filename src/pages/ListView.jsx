@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import {
@@ -37,8 +37,12 @@ import {
 import SearchBar from "../components/SearchBar";
 import { StyledFab } from "../components/StyledFab";
 
+import { AuthContext } from "../contexts/AuthProvider";
+
 const ListView = () => {
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+
   const [events, setEvents] = useState([]); //TODO: rename events to something else
   const [loaded, setLoaded] = useState();
   const [eventsSelected, setEventsSelected] = useState(true);
@@ -321,9 +325,11 @@ const ListView = () => {
         {/* Create Page e*/}
         Item Three
       </TabPanel>
-      <StyledFab color="secondary" onClick={() => navigate("/create")}>
-        <Add />
-      </StyledFab>
+      {user ? (
+        <StyledFab color="secondary" onClick={() => navigate("/create")}>
+          <Add />
+        </StyledFab>
+      ) : null}
     </>
   );
 };
