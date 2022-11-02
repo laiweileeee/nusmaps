@@ -21,6 +21,9 @@ import { LocationContext } from "../contexts/LocationProvider";
 import { doc, updateDoc, arrayUnion } from "firebase/firestore";
 import { db } from "../firebase";
 import { AuthContext } from "../contexts/AuthProvider";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { useSearchParams } from "react-router-dom";
 
 const dateTimeOptions = {
   year: "numeric",
@@ -55,7 +58,8 @@ const BasicCard = ({
   type,
   title,
   description,
-  creator,
+  creatorId,
+  creatorName,
   startDateTime,
   endDateTime,
   location,
@@ -73,6 +77,7 @@ const BasicCard = ({
     new LngLat(longitude, latitude).distanceTo(currentLocation) / 1000
   ).toFixed(2);
   const { user, auth } = useContext(AuthContext);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -97,7 +102,6 @@ const BasicCard = ({
   const doJoin = async () => {
     const docRef = doc(db, "events", eventUid);
 
-    // Set the "capital" field of the city 'DC'
     await updateDoc(docRef, {
       participants: arrayUnion(user.uid),
     });
@@ -108,7 +112,13 @@ const BasicCard = ({
     // loadEvents();
   };
 
-  const showDirections = () => {};
+  const handleEdit = (id) => {
+    setSearchParams({ eventId: id });
+  };
+
+  const handleDelete = () => {};
+
+  console.log("user ids", user.uid, creatorId, user.uid === creatorId);
 
   // console.log("participants");
   // console.log(participants);
@@ -143,7 +153,7 @@ const BasicCard = ({
           </Typography>
           <Typography
             sx={{ display: "flex", alignItems: "center" }}
-            variant="body3"
+            variant="body2"
             color="text.secondary"
           >
             <Group fontSize="inherit" sx={{ mr: 0.5 }} />
@@ -158,7 +168,7 @@ const BasicCard = ({
           sx={{ fontSize: "medium", maxWidth: 200, mb: 2 }}
           color="text.secondary"
         >
-          by {creator || "Creator"}
+          by {creatorName || "Creator"}
         </Typography>
         <Box
           component="div"
@@ -217,6 +227,9 @@ const BasicCard = ({
                 paddingLeft: 1,
                 paddingRight: 1,
                 paddingBottom: 2,
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
               }}
             >
               {user ? (
@@ -238,15 +251,12 @@ const BasicCard = ({
               ) : (
                 <div></div>
               )}
-              <Button
-                style={{ marginLeft: "1rem" }}
-                onClick={() => {
-                  showDirections();
-                }}
-                variant="text"
-              >
-                Get Directions
-              </Button>
+              {user.uid === creatorId && (
+                <Box>
+                  <EditIcon onClick={() => handleEdit(eventUid)} />
+                  <DeleteIcon onClick={handleDelete} />
+                </Box>
+              )}
             </Box>
           </CardActions>
         </Box>
