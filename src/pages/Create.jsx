@@ -63,6 +63,8 @@ const Create = () => {
       latitude,
       startDateTime: Timestamp.fromDate(new Date(data.startDateTime)),
       endDateTime: Timestamp.fromDate(new Date(data.endDateTime)),
+      creatorId: user.uid,
+      creatorName: user.displayName,
       timestamp: serverTimestamp(),
     });
 
