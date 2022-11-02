@@ -108,6 +108,8 @@ const BasicCard = ({
     // loadEvents();
   };
 
+  const showDirections = () => {};
+
   // console.log("participants");
   // console.log(participants);
   // console.log(!hasJoined());
@@ -210,13 +212,19 @@ const BasicCard = ({
             </Typography>
           </CardContent>
           <CardActions>
-            <Box sx={{ paddingLeft: 1, paddingRight: 1, paddingBottom: 2 }}>
+            <Box
+              sx={{
+                paddingLeft: 1,
+                paddingRight: 1,
+                paddingBottom: 2,
+              }}
+            >
               {user ? (
                 <Button
                   onClick={() => {
                     doJoin();
                   }}
-                  variant="outlined"
+                  variant="contained"
                   disabled={!canJoin()}
                 >
                   {hasCapacityToJoin()
@@ -230,6 +238,15 @@ const BasicCard = ({
               ) : (
                 <div></div>
               )}
+              <Button
+                style={{ marginLeft: "1rem" }}
+                onClick={() => {
+                  showDirections();
+                }}
+                variant="text"
+              >
+                Get Directions
+              </Button>
             </Box>
           </CardActions>
         </Box>
