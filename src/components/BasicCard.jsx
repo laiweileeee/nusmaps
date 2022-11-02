@@ -143,7 +143,7 @@ const BasicCard = ({
           </Typography>
           <Typography
             sx={{ display: "flex", alignItems: "center" }}
-            variant="body2"
+            variant="body3"
             color="text.secondary"
           >
             <Group fontSize="inherit" sx={{ mr: 0.5 }} />
