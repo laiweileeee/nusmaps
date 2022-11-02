@@ -32,6 +32,8 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import { StyledFab } from "../components/StyledFab";
 
+import { AuthContext } from "../contexts/AuthProvider";
+
 const MAPBOX_TOKEN =
   "pk.eyJ1IjoibmljbHF0IiwiYSI6ImNsOWR6YWk1ejA0Y2UzcG95djhucHlqaTEifQ.gHrtX5AcWucEpY3W3n1DQQ";
 
