@@ -71,21 +71,6 @@ const ListView = () => {
       const eventsList = [];
       snapshot.forEach((doc) => eventsList.push(doc));
       setEvents(eventsList);
-
-      // snapshot.docChanges().forEach(function (change) {
-      //   if (change.type === "removed") {
-      //     const newEvents = events.filter(
-      //       (event) => event.id !== change.doc.id
-      //     );
-      //     setEvents(newEvents);
-      //   }
-      //   if (change.type === "modified") {
-      //     console.log("Modified event: ", change.doc.data());
-      //   }
-      //   if (change.type === "removed") {
-      //     console.log("Removed event: ", change.doc.data());
-      //   }
-      // });
     });
 
     setLoaded(true);
@@ -126,16 +111,9 @@ const ListView = () => {
     value: PropTypes.number.isRequired,
   };
 
-  function a11yProps(index) {
-    return {
-      id: `simple-tab-${index}`,
-      "aria-controls": `simple-tabpanel-${index}`,
-    };
-  }
-
   return (
     <>
-      <AppBar position="static">
+      <AppBar position="sticky">
         <Toolbar>
           {/* <Search>
             <SearchIconWrapper>
