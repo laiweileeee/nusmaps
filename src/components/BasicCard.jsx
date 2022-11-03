@@ -272,7 +272,7 @@ const BasicCard = ({
                     }}
                   >
                     <EditIcon onClick={() => handleEdit(eventUid)} />
-                    <DeleteIcon onClick={handleDelete} />
+                    <DeleteIcon sx={{ ml: "0.5rem" }} onClick={handleDelete} />
                   </Box>
                 )}
             </Box>
