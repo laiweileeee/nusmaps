@@ -99,7 +99,6 @@ const MapView = () => {
 
   useEffect(() => {
     loadEvents();
-    console.log("called load events");
   }, [eventsSelected, groupsSelected]);
 
   return (

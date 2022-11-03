@@ -78,7 +78,6 @@ const ListView = () => {
 
   useEffect(() => {
     loadEvents();
-    console.log("called load events");
   }, [eventsSelected, earliestSelected]);
 
   console.log("events ", events);

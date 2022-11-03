@@ -99,8 +99,6 @@ const Profile = () => {
     }
   }, [toggle, user, tabValue]);
 
-  // console.log(user);
-
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
 
