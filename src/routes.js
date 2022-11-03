@@ -1,8 +1,8 @@
 import Create from "./pages/Create";
-import Edit from "./pages/Edit";
 import ListView from "./pages/ListView";
 import Map from "./pages/MapView";
 import Profile from "./pages/Profile";
+import Edit from "./pages/Edit";
 
 export const routes = [
   // {

@@ -16,7 +16,6 @@ import Tab from "@mui/material/Tab";
 import BasicCard from "../components/BasicCard";
 import {
   collection,
-  getDocs,
   limit,
   onSnapshot,
   orderBy,
@@ -67,14 +66,6 @@ const Profile = () => {
       orderBy("startDateTime", "asc"),
       limit(12)
     );
-    //
-    // const querySnapshot = await getDocs(eventsQuery);
-    //
-    // querySnapshot.forEach((doc) => {
-    //   // doc.data() is never undefined for query doc snapshots
-    //   console.log("document ", { id: doc.id, data: doc.data() });
-    //   setEvents((prev) => [...prev, doc]);
-    // });
 
     // Start listening to the query.
     onSnapshot(eventsQuery, function (snapshot) {
@@ -86,8 +77,6 @@ const Profile = () => {
       snapshot.forEach((doc) => eventsList.push(doc));
       setEvents(eventsList);
     });
-
-    // console.log("firestore results ", querySnapshot);
 
     setLoaded(true);
   };

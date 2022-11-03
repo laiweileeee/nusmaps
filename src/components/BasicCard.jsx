@@ -27,6 +27,7 @@ import {
   useNavigate,
   useSearchParams,
   createSearchParams,
+  useMatch,
 } from "react-router-dom";
 
 const dateTimeOptions = {
@@ -84,6 +85,7 @@ const BasicCard = ({
   const [searchParams, setSearchParams] = useSearchParams();
 
   const navigate = useNavigate();
+  const match = useMatch("/profile");
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -237,6 +239,7 @@ const BasicCard = ({
                 paddingRight: 1,
                 paddingBottom: 2,
                 display: "flex",
+                flex: 1,
                 flexDirection: "row",
                 justifyContent: "space-between",
               }}
@@ -260,8 +263,13 @@ const BasicCard = ({
               ) : (
                 <div></div>
               )}
-              {user.uid === creatorId && (
-                <Box>
+              {user.uid === creatorId && match && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
                   <EditIcon onClick={() => handleEdit(eventUid)} />
                   <DeleteIcon onClick={handleDelete} />
                 </Box>
