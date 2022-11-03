@@ -322,8 +322,6 @@ const Create = ({ event }) => {
         <Button type="submit" variant="contained">
           {event ? "Edit" : "Create"} Event
         </Button>
-        <p>{longitude}</p>
-        <p>{latitude}</p>
       </Box>
 
       <Modal
