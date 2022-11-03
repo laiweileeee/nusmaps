@@ -23,7 +23,11 @@ import { db } from "../firebase";
 import { AuthContext } from "../contexts/AuthProvider";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useSearchParams } from "react-router-dom";
+import {
+  useNavigate,
+  useSearchParams,
+  createSearchParams,
+} from "react-router-dom";
 
 const dateTimeOptions = {
   year: "numeric",
@@ -79,6 +83,8 @@ const BasicCard = ({
   const { user, auth } = useContext(AuthContext);
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const navigate = useNavigate();
+
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
@@ -112,13 +118,16 @@ const BasicCard = ({
     // loadEvents();
   };
 
-  const handleEdit = (id) => {
-    setSearchParams({ eventId: id });
+  const handleEdit = () => {
+    navigate({
+      pathname: "/edit",
+      search: `?${createSearchParams({
+        id: eventUid,
+      })}`,
+    });
   };
 
   const handleDelete = () => {};
-
-  console.log("user ids", user.uid, creatorId, user.uid === creatorId);
 
   // console.log("participants");
   // console.log(participants);
