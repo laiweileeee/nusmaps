@@ -146,7 +146,7 @@ const BasicCard = ({
       sx={{
         height: "fit-content",
         minWidth: 260,
-        mb: 1,
+        mb: 2,
       }}
     >
       <CardContent>
