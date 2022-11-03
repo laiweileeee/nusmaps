@@ -3,7 +3,6 @@ import Create from "./Create";
 import { useSearchParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import { Box, CircularProgress } from "@mui/material";
 import moment from "moment";
 
 const Edit = () => {
@@ -42,6 +41,7 @@ const Edit = () => {
         endDateTime: moment(event?.endDateTime.toDate()).format(
           "yyyy-MM-DDThh:mm"
         ),
+        coordinates: [event?.latitude, event?.longitude],
       }}
     />
   ) : (
