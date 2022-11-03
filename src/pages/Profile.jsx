@@ -96,7 +96,6 @@ const Profile = () => {
   useEffect(() => {
     if (user) {
       loadEvents();
-      console.log("called load events");
     }
   }, [toggle, user, tabValue]);
 
@@ -140,6 +139,7 @@ const Profile = () => {
         overflow: "auto",
         height: "100%",
         width: "100%",
+        paddingBottom: 10,
       }}
     >
       <Stack
