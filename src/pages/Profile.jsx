@@ -9,10 +9,14 @@ import {
   Avatar,
   Stack,
   CircularProgress,
+  ToggleButton,
+  ToggleButtonGroup,
 } from "@mui/material";
 import { AuthContext } from "../contexts/AuthProvider";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
+import AddBoxIcon from "@mui/icons-material/AddBox";
+import LoginIcon from "@mui/icons-material/Login";
 import BasicCard from "../components/BasicCard";
 import {
   collection,
@@ -31,8 +35,11 @@ const Profile = () => {
   const [tabValue, setTabValue] = useState(0);
   const [loaded, setLoaded] = useState();
   const [events, setEvents] = useState([]); //TODO: rename events to something else
-  const [eventsSelected, setEventsSelected] = useState(true);
-  const [tabSelected, setTabSelected] = useState("Joined");
+  const [toggle, setToggle] = useState("event");
+
+  const handleToggleChange = (event, newAlignment) => {
+    setToggle(newAlignment);
+  };
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -50,22 +57,27 @@ const Profile = () => {
 
   // Loads events and listens for upcoming ones.
   const loadEvents = async () => {
-    console.log("loading events for ", { userId: user.uid, tabValue });
-    const type = eventsSelected ? "Event" : "Group";
+    const type = toggle === "event" ? "Event" : "Group";
 
-    console.log("where clause ", tabValue === 0 ? "participants" : " creator");
-
-    // Create the query to load the last 12 documents and listen for new ones.
-    const eventsQuery = query(
-      collection(db, "events"),
-      where("type", "==", type),
-      where("startDateTime", ">=", Timestamp.now()),
-      tabValue === 0 // 0 for 'Joined', 1 for 'Created'
-        ? where("participants", "array-contains", user.uid)
-        : where("creatorId", "==", user.uid),
-      orderBy("startDateTime", "asc"),
-      limit(12)
-    );
+    // create query based on tab value
+    const eventsQuery =
+      tabValue === 0
+        ? query(
+            collection(db, "events"),
+            where("type", "==", type),
+            where("startDateTime", ">=", Timestamp.now()),
+            where("participants", "array-contains", user.uid),
+            orderBy("startDateTime", "asc"),
+            limit(12)
+          )
+        : query(
+            collection(db, "events"),
+            where("type", "==", type),
+            where("startDateTime", ">=", Timestamp.now()),
+            where("creatorId", "==", user.uid),
+            orderBy("startDateTime", "asc"),
+            limit(12)
+          );
 
     // Start listening to the query.
     onSnapshot(eventsQuery, function (snapshot) {
@@ -86,7 +98,7 @@ const Profile = () => {
       loadEvents();
       console.log("called load events");
     }
-  }, [eventsSelected, user, tabValue]);
+  }, [toggle, user, tabValue]);
 
   // console.log(user);
 
@@ -102,7 +114,7 @@ const Profile = () => {
         {...other}
       >
         {value === index && (
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ pt: 3, pb: 3 }}>
             <Typography>{children}</Typography>
           </Box>
         )}
@@ -115,13 +127,6 @@ const Profile = () => {
     index: PropTypes.number.isRequired,
     value: PropTypes.number.isRequired,
   };
-
-  function a11yProps(index) {
-    return {
-      id: `simple-tab-${index}`,
-      "aria-controls": `simple-tabpanel-${index}`,
-    };
-  }
 
   return (
     <Box
@@ -181,18 +186,19 @@ const Profile = () => {
               Log Out
             </Button> */}
           <LoginButton />
-          {tabSelected}
         </Stack>
       </Stack>
-      <>
-        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+
+      <Box sx={{ display: "flex", flex: 1, flexDirection: "column" }}>
+        <Box>
           <Tabs
             value={tabValue}
             onChange={handleTabChange}
             aria-label="basic tabs example"
+            centered
           >
-            <Tab label="Joined" {...a11yProps(0)} />
-            <Tab label="Created" {...a11yProps(1)} />
+            <Tab icon={<LoginIcon />} iconPosition="start" label="Joined" />
+            <Tab icon={<AddBoxIcon />} iconPosition="start" label="Created" />
           </Tabs>
         </Box>
         <TabPanel value={tabValue} index={0}>
@@ -203,11 +209,27 @@ const Profile = () => {
               flex: 1,
               justifyContent: "center",
               alignItems: "center",
-              padding: 1,
-              paddingTop: 3,
-              paddingBottom: 10,
             }}
           >
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                flex: 1,
+                justifyContent: "center",
+                mb: 3,
+              }}
+            >
+              <ToggleButtonGroup
+                size="small"
+                value={toggle}
+                onChange={handleToggleChange}
+                exclusive
+              >
+                <ToggleButton value="event">Events</ToggleButton>
+                <ToggleButton value="group">Groups</ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
             {!loaded ? (
               <Box sx={{ display: "flex" }}>
                 <CircularProgress />
@@ -218,8 +240,6 @@ const Profile = () => {
                   display: "flex",
                   flexDirection: "Column",
                   flexGrow: 1,
-                  minWidth: 260,
-                  width: "90%",
                 }}
               >
                 {events.length > 0 ? (
@@ -233,7 +253,9 @@ const Profile = () => {
                   ))
                 ) : (
                   <Typography variant="h6" component="div">
-                    {eventsSelected ? "No events found." : "No groups found."}
+                    {toggle === "events"
+                      ? "No events found."
+                      : "No groups found."}
                   </Typography>
                 )}
               </Box>
@@ -241,6 +263,25 @@ const Profile = () => {
           </Box>
         </TabPanel>
         <TabPanel value={tabValue} index={1}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              flex: 1,
+              justifyContent: "center",
+              mb: 3,
+            }}
+          >
+            <ToggleButtonGroup
+              size="small"
+              value={toggle}
+              onChange={handleToggleChange}
+              exclusive
+            >
+              <ToggleButton value="event">Events</ToggleButton>
+              <ToggleButton value="group">Groups</ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
           {!loaded ? (
             <Box sx={{ display: "flex" }}>
               <CircularProgress />
@@ -251,8 +292,6 @@ const Profile = () => {
                 display: "flex",
                 flexDirection: "Column",
                 flexGrow: 1,
-                minWidth: 260,
-                width: "90%",
               }}
             >
               {events.length > 0 ? (
@@ -266,13 +305,15 @@ const Profile = () => {
                 ))
               ) : (
                 <Typography variant="h6" component="div">
-                  {eventsSelected ? "No events found." : "No groups found."}
+                  {toggle === "events"
+                    ? "No events found."
+                    : "No groups found."}
                 </Typography>
               )}
             </Box>
           )}
         </TabPanel>
-      </>
+      </Box>
     </Box>
   );
 };
