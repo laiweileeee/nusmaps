@@ -18,7 +18,7 @@ import { styled } from "@mui/material/styles";
 import moment from "moment";
 import { LngLat } from "mapbox-gl";
 import { LocationContext } from "../contexts/LocationProvider";
-import { doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion, deleteDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { AuthContext } from "../contexts/AuthProvider";
 import EditIcon from "@mui/icons-material/Edit";
@@ -129,7 +129,9 @@ const BasicCard = ({
     });
   };
 
-  const handleDelete = () => {};
+  const handleDelete = async () => {
+    await deleteDoc(doc(db, "events", eventUid));
+  };
 
   // console.log("participants");
   // console.log(participants);
