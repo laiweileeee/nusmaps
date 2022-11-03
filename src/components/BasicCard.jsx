@@ -18,9 +18,17 @@ import { styled } from "@mui/material/styles";
 import moment from "moment";
 import { LngLat } from "mapbox-gl";
 import { LocationContext } from "../contexts/LocationProvider";
-import { doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { doc, updateDoc, arrayUnion, deleteDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { AuthContext } from "../contexts/AuthProvider";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import {
+  useNavigate,
+  useSearchParams,
+  createSearchParams,
+  useMatch,
+} from "react-router-dom";
 
 const dateTimeOptions = {
   year: "numeric",
@@ -55,6 +63,7 @@ const BasicCard = ({
   type,
   title,
   description,
+  creatorId,
   creatorName,
   startDateTime,
   endDateTime,
@@ -73,6 +82,10 @@ const BasicCard = ({
     new LngLat(longitude, latitude).distanceTo(currentLocation) / 1000
   ).toFixed(2);
   const { user, auth } = useContext(AuthContext);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const navigate = useNavigate();
+  const match = useMatch("/profile");
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -97,7 +110,6 @@ const BasicCard = ({
   const doJoin = async () => {
     const docRef = doc(db, "events", eventUid);
 
-    // Set the "capital" field of the city 'DC'
     await updateDoc(docRef, {
       participants: arrayUnion(user.uid),
     });
@@ -106,6 +118,19 @@ const BasicCard = ({
     console.log("NEW PARTICIPANTS");
     console.log(currentParticipants);
     // loadEvents();
+  };
+
+  const handleEdit = () => {
+    navigate({
+      pathname: "/edit",
+      search: `?${createSearchParams({
+        id: eventUid,
+      })}`,
+    });
+  };
+
+  const handleDelete = async () => {
+    await deleteDoc(doc(db, "events", eventUid));
   };
 
   // console.log("participants");
@@ -121,7 +146,7 @@ const BasicCard = ({
       sx={{
         height: "fit-content",
         minWidth: 260,
-        mb: 1,
+        mb: 2,
       }}
     >
       <CardContent>
@@ -210,13 +235,23 @@ const BasicCard = ({
             </Typography>
           </CardContent>
           <CardActions>
-            <Box sx={{ paddingLeft: 1, paddingRight: 1, paddingBottom: 2 }}>
-              {user ? (
+            <Box
+              sx={{
+                paddingLeft: 1,
+                paddingRight: 1,
+                paddingBottom: 2,
+                display: "flex",
+                flex: 1,
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              {user && user.uid !== creatorId ? ( // can only join if not creator
                 <Button
                   onClick={() => {
                     doJoin();
                   }}
-                  variant="outlined"
+                  variant="contained"
                   disabled={!canJoin()}
                 >
                   {hasCapacityToJoin()
@@ -230,6 +265,18 @@ const BasicCard = ({
               ) : (
                 <div></div>
               )}
+              {user.uid === creatorId &&
+                match && ( // only shows if on '/profile' and is creator
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <EditIcon onClick={() => handleEdit(eventUid)} />
+                    <DeleteIcon sx={{ ml: "0.5rem" }} onClick={handleDelete} />
+                  </Box>
+                )}
             </Box>
           </CardActions>
         </Box>

@@ -45,10 +45,10 @@ _Map view for 'events'_
 - [x] Add sorting and filtering UI
 - [x] Add sorting and filtering firestore queries
 - [x] Add sort by 'earliest first'
-- [ ] Add sort by 'nearest first' (firestore doesn't support this, need to fetch all events and filter on client side)
+- [ ] ~~Add sort by 'nearest first' (firestore doesn't support this, need to fetch all events and filter on client side)~~
 - [x] Display calculated distance from user
 - [x] Display calculated time from event start time
-- [ ] Add support for event images (If we have time)
+- [ ] ~~Add support for event images (If we have time)~~
 - [ ] Styling
 
 
@@ -64,18 +64,7 @@ _Create an 'event'_
 - [x] Add creatorId and creatorName fields
 - [ ] Make 'capacity' field optional (this will determine if users can or cannot join an event)
 - [x] Replace `<NativeSelect/>` component with toggle buttons
-- [ ] Move entire page to a dialog/ modal if got time
-- [ ] Styling
-
-<br/>
-
-`src/pages/CreatedEvents.jsx`
-
-_List view for 'created event's_ (NOT Implemented, not sure what to call 'events' tbh)
-- [ ] Add new tab for this route somehwere
-- [ ] View list of created events
-- [ ] Add update event functionality
-- [ ] Add delete event functionality
+- [ ] ~~Move entire page to a dialog/ modal if got time~~
 - [ ] Styling
 
 <br/>
@@ -83,7 +72,13 @@ _List view for 'created event's_ (NOT Implemented, not sure what to call 'events
 `src/pages/Profile.jsx`
 
 _Authenticated user details_
-- [ ] Styling: clean up ui, add more user data if needed
+- [x] Styling: clean up ui, add more user data if needed
+- [x] View list of joined events
+- [x] View list of created events
+- [x] Add update event functionality
+- [x] Add delete event functionality
+- [ ] Styling
+
 
 <br/>
 

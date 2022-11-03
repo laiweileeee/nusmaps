@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { db } from "../firebase";
@@ -7,6 +7,10 @@ import {
   addDoc,
   collection,
   Timestamp,
+  doc,
+  updateDoc,
+  arrayUnion,
+  setDoc,
 } from "firebase/firestore";
 
 import {
@@ -35,34 +39,58 @@ import { AuthContext } from "../contexts/AuthProvider";
 const MAPBOX_TOKEN =
   "pk.eyJ1IjoibmljbHF0IiwiYSI6ImNsOWR6YWk1ejA0Y2UzcG95djhucHlqaTEifQ.gHrtX5AcWucEpY3W3n1DQQ";
 
-const Create = () => {
+const Create = ({ event }) => {
   const { user } = useContext(AuthContext);
 
-  const { handleSubmit, control, watch, setValue } = useForm();
+  const { handleSubmit, control, watch, setValue } = useForm({
+    defaultValues: event,
+  });
   const watchFields = watch(["startDateTime", "endDateTime", "coordinates"]);
 
   const navigate = useNavigate();
   const [showTooltip, setShowTooltip] = useState(false);
   const [displayMap, setDisplayMap] = useState(false);
 
+  const [longitude, setLongitude] = useState(
+    event ? event.longitude : 103.7769
+  );
+  const [latitude, setLatitude] = useState(event ? event.latitude : 1.2959);
+
   const onSubmit = async (data) => {
     // Add a new document in collection "events"
-    await addDoc(collection(db, "events"), {
-      title: data.title,
-      description: data.description,
-      capacity: data.capacity,
-      type: data.type,
-      location: data.location,
-      latitude: data.coordinates[0],
-      longitude: data.coordinates[1],
-      startDateTime: Timestamp.fromDate(new Date(data.startDateTime)),
-      endDateTime: Timestamp.fromDate(new Date(data.endDateTime)),
-      creatorId: user.uid,
-      creatorName: user.displayName,
-      timestamp: serverTimestamp(),
-    });
+    if (!event) {
+      await addDoc(collection(db, "events"), {
+        title: data.title,
+        description: data.description,
+        capacity: data.capacity,
+        type: data.type,
+        location: data.location,
+        latitude: data.coordinates[0],
+        longitude: data.coordinates[1],
+        startDateTime: Timestamp.fromDate(new Date(data.startDateTime)),
+        endDateTime: Timestamp.fromDate(new Date(data.endDateTime)),
+        creatorId: user.uid,
+        creatorName: user.displayName,
+        timestamp: serverTimestamp(),
+      });
 
-    navigate("/list");
+      navigate("/list");
+    } else {
+      // Update doc
+      const docRef = doc(db, "events", event.eventId);
+      await updateDoc(docRef, {
+        title: data.title,
+        description: data.description,
+        capacity: data.capacity,
+        type: data.type,
+        location: data.location,
+        latitude: data.coordinates[0],
+        longitude: data.coordinates[1],
+        startDateTime: Timestamp.fromDate(new Date(data.startDateTime)),
+        endDateTime: Timestamp.fromDate(new Date(data.endDateTime)),
+      });
+      navigate("/profile");
+    }
   };
 
   // Custom number input bc material ui doesn't support it
@@ -99,7 +127,7 @@ const Create = () => {
           variant="h5"
           sx={{ paddingTop: 2, paddingBottom: 1, alignSelf: "flex-start" }}
         >
-          Create New Event
+          {event ? "Edit" : "Create New"} Event
         </Typography>
 
         <Controller
@@ -308,7 +336,7 @@ const Create = () => {
         />
 
         <Button type="submit" variant="contained">
-          Create Event
+          {event ? "Edit" : "Create"} Event
         </Button>
       </Box>
 
