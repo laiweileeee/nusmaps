@@ -14,8 +14,6 @@ import {
   Button,
   FormControl,
   FormHelperText,
-  IconButton,
-  InputAdornment,
   InputLabel,
   Modal,
   OutlinedInput,
@@ -25,7 +23,6 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { Place } from "@mui/icons-material";
 
 import { NumericFormat } from "react-number-format";
 import Map, { Marker } from "react-map-gl";
@@ -41,15 +38,12 @@ const MAPBOX_TOKEN =
 const Create = () => {
   const { user } = useContext(AuthContext);
 
-  const { handleSubmit, control, watch } = useForm();
-  const watchFields = watch(["startDateTime", "endDateTime"]);
+  const { handleSubmit, control, watch, setValue } = useForm();
+  const watchFields = watch(["startDateTime", "endDateTime", "coordinates"]);
 
   const navigate = useNavigate();
   const [showTooltip, setShowTooltip] = useState(false);
-
   const [displayMap, setDisplayMap] = useState(false);
-  const [longitude, setLongitude] = useState(103.7769);
-  const [latitude, setLatitude] = useState(1.2959);
 
   const onSubmit = async (data) => {
     // Add a new document in collection "events"
@@ -59,8 +53,8 @@ const Create = () => {
       capacity: data.capacity,
       type: data.type,
       location: data.location,
-      longitude,
-      latitude,
+      latitude: data.coordinates[0],
+      longitude: data.coordinates[1],
       startDateTime: Timestamp.fromDate(new Date(data.startDateTime)),
       endDateTime: Timestamp.fromDate(new Date(data.endDateTime)),
       creatorId: user.uid,
@@ -142,6 +136,7 @@ const Create = () => {
               onChange={onChange}
               error={!!error}
               helperText={error ? error.message : null}
+              required
             />
           )}
           rules={{ required: "Title is required" }}
@@ -162,6 +157,7 @@ const Create = () => {
               onChange={onChange}
               error={!!error}
               helperText={error ? error.message : null}
+              required
             />
           )}
           rules={{ required: "Description is required" }}
@@ -186,6 +182,7 @@ const Create = () => {
               onChange={onChange}
               error={!!error}
               helperText={error ? error.message : null}
+              required
             />
           )}
           rules={{
@@ -215,6 +212,7 @@ const Create = () => {
               onChange={onChange}
               error={!!error}
               helperText={error ? error.message : null}
+              required
             />
           )}
           rules={{
@@ -226,12 +224,39 @@ const Create = () => {
         />
 
         <Controller
+          name="coordinates"
+          control={control}
+          defaultValue=""
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
+            <FormControl
+              variant="outlined"
+              sx={{ marginBottom: 2 }}
+              onClick={() => setDisplayMap(true)}
+              fullWidth
+              error={!!error}
+              required
+            >
+              <InputLabel htmlFor="coordinates">Coordinates</InputLabel>
+              <OutlinedInput
+                id="coordinates"
+                label="Coordinates"
+                value={value}
+                onChange={onChange}
+                readOnly
+              />
+              <FormHelperText>{error ? error.message : null}</FormHelperText>
+            </FormControl>
+          )}
+          rules={{ required: "Coordinates are required" }}
+        />
+
+        <Controller
           name="location"
           control={control}
           defaultValue=""
           render={({ field: { onChange, value }, fieldState: { error } }) => (
             <Tooltip
-              title="Please input location (eg. COM2 Seminar Room 1) and drop location pin"
+              title="Please input location details (eg. COM2 Seminar Room 1)."
               sx={{ width: "90%" }}
               open={showTooltip}
               arrow={true}
@@ -243,24 +268,12 @@ const Create = () => {
                 onBlur={() => setShowTooltip(false)}
                 fullWidth
                 error={!!error}
+                required
               >
                 <InputLabel htmlFor="location">Location</InputLabel>
                 <OutlinedInput
                   id="location"
-                  label="Password"
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => {
-                          setDisplayMap(true);
-                          setShowTooltip(false);
-                        }}
-                        edge="end"
-                      >
-                        <Place />
-                      </IconButton>
-                    </InputAdornment>
-                  }
+                  label="Location"
                   value={value}
                   onChange={onChange}
                   autoComplete="off"
@@ -322,18 +335,22 @@ const Create = () => {
             mapboxAccessToken={MAPBOX_TOKEN}
             reuseMaps
             style={{ borderRadius: 10, marginBottom: 8 }}
+            onClick={(e) =>
+              setValue("coordinates", [e.lngLat.lat, e.lngLat.lng])
+            }
           >
             <Geocoder position="top-left" />
-            <Marker
-              longitude={longitude}
-              latitude={latitude}
-              draggable
-              style={{ cursor: "pointer" }}
-              onDragEnd={(e) => {
-                setLongitude(e.lngLat.lng);
-                setLatitude(e.lngLat.lat);
-              }}
-            ></Marker>
+            {watchFields[2] ? (
+              <Marker
+                longitude={watchFields[2][1]}
+                latitude={watchFields[2][0]}
+                draggable
+                style={{ cursor: "pointer" }}
+                onDragEnd={(e) =>
+                  setValue("coordinates", [e.lngLat.lat, e.lngLat.lng])
+                }
+              ></Marker>
+            ) : null}
           </Map>
           <Button
             variant="contained"
