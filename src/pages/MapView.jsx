@@ -13,7 +13,7 @@ import { Add } from "@mui/icons-material";
 import { Map as MapIcon } from "@mui/icons-material";
 import TuneIcon from "@mui/icons-material/Tune";
 
-import Map, { Marker, Popup, GeolocateControl } from "react-map-gl";
+import Map, { Marker, Popup, GeolocateControl, NavigationControl, Layer, Source } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./MapView.css";
 
@@ -46,7 +46,16 @@ const MapView = () => {
     latitude: 1.2907,
     zoom: 13,
   });
+
+  const mainLayer = {
+    id: 'clusters',
+    style: 'circle',
+
+  }
+
+
   const [events, setEvents] = useState([]); //TODO: rename events to something else
+  const [geoEvents, setGeoEvents] = useState(null);
   const [eventsSelected, setEventsSelected] = useState(true);
   const [groupsSelected, setGroupsSelected] = useState(true);
   const [popupInfo, setPopupInfo] = useState();
@@ -64,6 +73,49 @@ const MapView = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const layerStyle = {
+    id: 'point',
+    type: 'circle',
+    paint: {
+      'circle-radius': 10,
+      'circle-color': '#007cbf'
+    }
+  };
+
+  const layoutLayerText = {
+    'text-field': '{point_count_abbreviated}',
+    'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+    'text-size': 12
+  }
+
+  const layerVaryingCircleStyle = {
+    'circle-color': [
+      'step',
+      ['get', 'point_count'],
+      '#51bbd6',
+      100,
+      '#f1f075',
+      750,
+      '#f28cb1'
+    ],
+    'circle-radius': [
+      'step',
+      ['get', 'point_count'],
+      20,
+      100,
+      30,
+      750,
+      40
+    ]
+  }
+
+  const layerUnclusteredPointStyle = {
+    'circle-color': '#11b4da',
+    'circle-radius': 4,
+    'circle-stroke-width': 1,
+    'circle-stroke-color': '#fff'
+  }
 
   // Loads events and listens for upcoming ones.
   const loadEvents = () => {
@@ -92,14 +144,42 @@ const MapView = () => {
       }
 
       const eventsList = [];
-      snapshot.forEach((doc) => eventsList.push(doc));
+      snapshot.forEach((doc) => {
+        eventsList.push(doc);
+      });
+      // console.log(eventsList[0].data());
+
+
       setEvents(eventsList);
+      parseGeoData(eventsList);
     });
   };
+
+  const parseGeoData = (eventsList) => {
+    let coordinates = [];
+    eventsList.forEach((e) => {
+      coordinates.push({
+        "type": "Feature",
+        "geometry": {
+          "type": "Point",
+          "coordinates": [e.data().longitude, e.data().latitude, 0.0]
+        },
+        "properties": {
+          "data": e.data()
+        }
+      });
+    });
+    let geojsonMarker = {
+      "type": "FeatureCollection",
+      "features": coordinates
+    };
+    setGeoEvents(geojsonMarker);
+  }
 
   useEffect(() => {
     loadEvents();
     console.log("called load events");
+
   }, [eventsSelected, groupsSelected]);
 
   return (
@@ -129,23 +209,39 @@ const MapView = () => {
       >
         <GeolocateControl showAccuracyCircle={false} />
         <Geocoder position="top-left" />
+        <NavigationControl position="bottom-left" style={{ 'margin-bottom': '50px' }} />
 
+        {geoEvents !== null && <Source id="my-data" type="geojson" cluster={true} clusterMaxZoom={14} clusterRadius={50} data={geoEvents}>
+          <Layer {...layerStyle} />
+          <Layer id="clusters" type="circle" filter={['has', 'point_count']} paint={layerVaryingCircleStyle} />
+          <Layer id="cluster-count" type="symbol" filter={['has', 'point_count']} layout={layoutLayerText} />
+          <Layer id="unclustered-point" type="circle" filter={['!', ['has', 'point_count']]} paint={layerUnclusteredPointStyle} />
+        </Source>
+        }
+        {/* {
+          console.log(JSON.stringify(geoEvents))
+
+        }
+        {
+          console.log("line 189")
+        } */}
         {events
           ? events.map((event) => (
-              <Marker
-                key={event.data().title}
-                longitude={event.data().longitude}
-                latitude={event.data().latitude}
-                style={{ cursor: "pointer" }}
-                onClick={(e) => {
-                  e.originalEvent.stopPropagation();
-                  setPopupInfo(event);
-                }}
-              />
-            ))
-          : null}
 
+            <Marker
+              key={event.data().title}
+              longitude={event.data().longitude}
+              latitude={event.data().latitude}
+              style={{ cursor: "pointer" }}
+              onClick={(e) => {
+                e.originalEvent.stopPropagation();
+                setPopupInfo(event);
+              }}
+            />
+          ))
+          : null}
         {popupInfo ? (
+
           <Popup
             anchor="top"
             longitude={popupInfo.data().longitude}
@@ -216,6 +312,7 @@ const MapView = () => {
         </StyledFab>
       ) : null}
     </>
+
   );
 };
 
