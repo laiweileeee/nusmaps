@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useContext } from "react";
+import React, { useState, useEffect, useCallback, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Typography from "@mui/material/Typography";
 import {
@@ -9,11 +9,12 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import { Add } from "@mui/icons-material";
+import { Add, SystemSecurityUpdate } from "@mui/icons-material";
 import { Map as MapIcon } from "@mui/icons-material";
 import TuneIcon from "@mui/icons-material/Tune";
 
-import Map, { Marker, Popup, GeolocateControl, NavigationControl, Layer, Source } from "react-map-gl";
+import Map, { Marker, Popup, GeolocateControl, NavigationControl, Layer, Source, GeoJSONSource } from "react-map-gl";
+import { MapRef } from 'react-map-gl';
 import "mapbox-gl/dist/mapbox-gl.css";
 import "./MapView.css";
 
@@ -38,6 +39,7 @@ const MAPBOX_TOKEN =
   "pk.eyJ1IjoibmljbHF0IiwiYSI6ImNsOWR6YWk1ejA0Y2UzcG95djhucHlqaTEifQ.gHrtX5AcWucEpY3W3n1DQQ";
 
 const MapView = () => {
+  const mapRef = React.useRef();
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
@@ -53,7 +55,6 @@ const MapView = () => {
 
   }
 
-
   const [events, setEvents] = useState([]); //TODO: rename events to something else
   const [geoEvents, setGeoEvents] = useState(null);
   const [eventsSelected, setEventsSelected] = useState(true);
@@ -65,6 +66,27 @@ const MapView = () => {
   const handleMove = useCallback((evt) => {
     setViewState(evt.viewState);
   }, []);
+
+  const handleMapClick = (event) => {
+    if (event !== null && event.features[0] !== undefined) {
+      const feature = event.features[0];
+      const clusterId = feature.properties.cluster_id;
+      console.log(mapRef);
+      const mapboxSource = mapRef.current.getSource('geoData');
+
+      mapboxSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
+        if (err) {
+          return;
+        }
+
+        mapRef.current.easeTo({
+          center: feature.geometry.coordinates,
+          zoom,
+          duration: 500
+        });
+      });
+    }
+  }
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -198,18 +220,23 @@ const MapView = () => {
           </Typography>
         </Toolbar>
       </AppBar> */}
+
       <Map
         {...viewState}
         onMove={handleMove}
         mapStyle="mapbox://styles/mapbox/streets-v9"
         mapboxAccessToken={MAPBOX_TOKEN}
+        interactiveLayerIds={["clusters"]}
+        onClick={handleMapClick}
+        ref={mapRef}
         reuseMaps
       >
         <GeolocateControl showAccuracyCircle={false} />
         <Geocoder position="top-left" />
         <NavigationControl position="bottom-left" style={{ 'margin-bottom': '50px' }} />
 
-        {geoEvents !== null && <Source id="my-data" type="geojson" cluster={true} clusterMaxZoom={14} clusterRadius={50} data={geoEvents}>
+        {geoEvents !== null && <Source id="geoData" type="geojson"
+          cluster={true} clusterMaxZoom={14} clusterRadius={50} data={geoEvents}>
           <Layer {...layerStyle} />
           <Layer id="clusters" type="circle" filter={['has', 'point_count']} paint={layerVaryingCircleStyle} />
           <Layer id="cluster-count" type="symbol" filter={['has', 'point_count']} layout={layoutLayerText} />
