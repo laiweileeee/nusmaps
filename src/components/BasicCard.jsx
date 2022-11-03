@@ -244,7 +244,7 @@ const BasicCard = ({
                 justifyContent: "space-between",
               }}
             >
-              {user ? (
+              {user && user.uid !== creatorId ? ( // can only join if not creator
                 <Button
                   onClick={() => {
                     doJoin();
@@ -263,17 +263,18 @@ const BasicCard = ({
               ) : (
                 <div></div>
               )}
-              {user.uid === creatorId && match && (
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <EditIcon onClick={() => handleEdit(eventUid)} />
-                  <DeleteIcon onClick={handleDelete} />
-                </Box>
-              )}
+              {user.uid === creatorId &&
+                match && ( // only shows if on '/profile' and is creator
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <EditIcon onClick={() => handleEdit(eventUid)} />
+                    <DeleteIcon onClick={handleDelete} />
+                  </Box>
+                )}
             </Box>
           </CardActions>
         </Box>
