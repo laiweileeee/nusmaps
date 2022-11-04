@@ -173,14 +173,19 @@ const BasicCard = ({
           }}
         >
           <Typography
-            sx={{ fontSize: "small", alignItems: "center" }}
+            sx={{ fontSize: "small", alignItems: "center", marginRight: 1 }}
             color="text.secondary"
           >
             {type || "type"} {bull} {distanceFromUser + " km" || "XX km"} {bull}{" "}
             {getRelativeTime() || "XX"}
           </Typography>
           <Typography
-            sx={{ display: "flex", alignItems: "center" }}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              minWidth: 65,
+              justifyContent: "flex-end",
+            }}
             variant="body2"
             color="text.secondary"
           >
