@@ -24,16 +24,12 @@
 }
 
 .filter {
-  height: 50px;
-  display: flex;
-  align-items: center;
-  z-index: 10;
-  top: 10px;
-  right: 10px;
-  padding: 12px;
   position: absolute;
-  background-color: white;
-  border-radius: 4px;
+  display: flex;
+  width: 100%;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-top: 70px;
 }
 
 @media screen and (min-width: 640px) {
@@ -45,22 +41,12 @@
   }
 
   .filter {
-    height: 36px;
-    width: 36px;
-    display: flex;
-    align-items: center;
-    z-index: 10;
-    top: 10px;
-    left: 325px;
-    padding: 12px;
     position: absolute;
-    background-color: white;
-    border-radius: 4px;
-  }
-}
-
-@media screen and (max-width: 640px) {
-  .mapboxgl-ctrl.mapboxgl-ctrl-group {
-    margin-top: 70px;
+    display: flex;
+    width: 360px;
+    padding-left: 0;
+    padding-right: 0;
+    left: 10px;
+    margin-top: 55px;
   }
 }

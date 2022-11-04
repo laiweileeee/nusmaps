@@ -1,44 +1,49 @@
 import React, { useContext, useState, useEffect } from "react";
-import { signOut } from "firebase/auth";
-import LoginButton from "../components/LoginButton.jsx";
-import PropTypes from "prop-types";
 
+import PropTypes from "prop-types";
 import {
   Box,
+  Button,
   Typography,
   Avatar,
   Stack,
   CircularProgress,
   ToggleButton,
-  ToggleButtonGroup,
+  Tab,
+  Tabs,
+  Checkbox,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
-import { AuthContext } from "../contexts/AuthProvider";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import AddBoxIcon from "@mui/icons-material/AddBox";
-import LoginIcon from "@mui/icons-material/Login";
+import { AddBox, Login, Tune } from "@mui/icons-material";
+
 import BasicCard from "../components/BasicCard";
-import {
-  collection,
-  limit,
-  onSnapshot,
-  orderBy,
-  query,
-  Timestamp,
-  where,
-} from "firebase/firestore";
-import { db } from "../firebase";
+import LoginButton from "../components/LoginButton.jsx";
+
+import { signOut } from "firebase/auth";
+import { AuthContext } from "../contexts/AuthProvider";
+
+import { getOngoing, getUpcoming, getPast } from "../api/API";
 
 const Profile = () => {
   const { user, auth } = useContext(AuthContext);
-  const [anchorEl, setAnchorEl] = useState(null);
   const [tabValue, setTabValue] = useState(0);
   const [loaded, setLoaded] = useState();
   const [events, setEvents] = useState([]); //TODO: rename events to something else
-  const [toggle, setToggle] = useState("event");
+  const [eventsSelected, setEventsSelected] = useState(false);
+  const [groupsSelected, setGroupsSelected] = useState(false);
+  const [filter, setFilter] = useState("default");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
 
-  const handleToggleChange = (event, newAlignment) => {
-    setToggle(newAlignment);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
   };
 
   const handleTabChange = (event, newValue) => {
@@ -52,43 +57,40 @@ const Profile = () => {
 
   const handleSignOut = async () => {
     await signOutUser();
-    setAnchorEl(null);
   };
 
   // Loads events and listens for upcoming ones.
   const loadEvents = async () => {
-    const type = toggle === "event" ? "Event" : "Group";
+    let type = null;
+    if (
+      (eventsSelected && !groupsSelected) ||
+      (!eventsSelected && groupsSelected)
+    ) {
+      type = eventsSelected ? "Event" : "Group";
+    }
 
-    // create query based on tab value
-    const eventsQuery =
-      tabValue === 0
-        ? query(
-            collection(db, "events"),
-            where("type", "==", type),
-            where("startDateTime", ">=", Timestamp.now()),
-            where("participants", "array-contains", user.uid),
-            orderBy("startDateTime", "asc"),
-            limit(12)
-          )
-        : query(
-            collection(db, "events"),
-            where("type", "==", type),
-            where("startDateTime", ">=", Timestamp.now()),
-            where("creatorId", "==", user.uid),
-            orderBy("startDateTime", "asc"),
-            limit(12)
-          );
+    let participantId = null;
+    let creatorId = null;
+    if (tabValue === 0) {
+      participantId = user.uid;
+    } else {
+      creatorId = user.uid;
+    }
 
-    // Start listening to the query.
-    onSnapshot(eventsQuery, function (snapshot) {
-      if (!snapshot.size) {
-        setEvents([]);
-      }
-
-      const eventsList = [];
-      snapshot.forEach((doc) => eventsList.push(doc));
-      setEvents(eventsList);
-    });
+    if (filter === "default") {
+      const ongoing = await getOngoing(type, creatorId, participantId);
+      const upcoming = await getUpcoming(type, creatorId, participantId);
+      setEvents(ongoing.concat(upcoming));
+    } else if (filter === "ongoing") {
+      const ongoing = await getOngoing(type, creatorId, participantId);
+      setEvents(ongoing);
+    } else if (filter === "upcoming") {
+      const upcoming = await getUpcoming(type, creatorId, participantId);
+      setEvents(upcoming);
+    } else if (filter === "past") {
+      const past = await getPast(type, creatorId, participantId);
+      setEvents(past);
+    }
 
     setLoaded(true);
   };
@@ -97,7 +99,7 @@ const Profile = () => {
     if (user) {
       loadEvents();
     }
-  }, [toggle, user, tabValue]);
+  }, [user, tabValue, eventsSelected, groupsSelected, filter]);
 
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -109,127 +111,20 @@ const Profile = () => {
         id={`simple-tabpanel-${index}`}
         aria-labelledby={`simple-tab-${index}`}
         {...other}
+        style={{ height: "100%" }}
       >
         {value === index && (
-          <Box sx={{ pt: 3, pb: 3 }}>
-            <Typography>{children}</Typography>
-          </Box>
-        )}
-      </div>
-    );
-  }
-
-  TabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired,
-  };
-
-  return (
-    <Box
-      sx={{
-        flexGrow: 1,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "top",
-        paddingTop: "10%",
-        alignItems: "center",
-        overflow: "auto",
-        height: "100%",
-        width: "100%",
-        paddingBottom: 10,
-      }}
-    >
-      <Stack
-        direction="column"
-        spacing={6}
-        sx={{ justifyContent: "center", alignItems: "center" }}
-      >
-        <Stack
-          direction="row"
-          spacing={3}
-          sx={{ justifyContent: "center", alignItems: "center" }}
-        >
-          <Avatar src={user?.photoURL} sx={{ width: 55, height: 55 }} />
-          <Stack direction="column" spacing={1}>
-            <Typography
-              sx={{ fontSize: "medium", maxWidth: 200, mb: 0 }}
-              color="text.primary"
-            >
-              {user?.displayName}
-            </Typography>
-            <Typography
-              sx={{ fontSize: "medium", maxWidth: 200, mb: 0 }}
-              color="text.primary"
-            >
-              {user?.email}
-            </Typography>
-          </Stack>
-        </Stack>
-
-        <Stack>
-          <Typography
-            sx={{ fontSize: "medium", maxWidth: 200, mb: 0 }}
-            color="text.primary"
-          >
-            OTHER PROFILE INFO
-          </Typography>
-          <Typography
-            sx={{ fontSize: "medium", maxWidth: 200, mb: 0 }}
-            color="text.primary"
-          >
-            {user?.email}
-          </Typography>
-          {/* <Button variant="outlined" color="error" onClick={handleSignOut}>
-              Log Out
-            </Button> */}
-          <LoginButton />
-        </Stack>
-      </Stack>
-
-      <Box sx={{ display: "flex", flex: 1, flexDirection: "column" }}>
-        <Box>
-          <Tabs
-            value={tabValue}
-            onChange={handleTabChange}
-            aria-label="basic tabs example"
-            centered
-          >
-            <Tab icon={<LoginIcon />} iconPosition="start" label="Joined" />
-            <Tab icon={<AddBoxIcon />} iconPosition="start" label="Created" />
-          </Tabs>
-        </Box>
-        <TabPanel value={tabValue} index={0}>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                flex: 1,
-                justifyContent: "center",
-                mb: 3,
-              }}
-            >
-              <ToggleButtonGroup
-                size="small"
-                value={toggle}
-                onChange={handleToggleChange}
-                exclusive
-              >
-                <ToggleButton value="event">Events</ToggleButton>
-                <ToggleButton value="group">Groups</ToggleButton>
-              </ToggleButtonGroup>
-            </Box>
+          <Box sx={{ pt: 2, pb: 3, height: "100%" }}>
             {!loaded ? (
-              <Box sx={{ display: "flex" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexGrow: 1,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: "100%",
+                }}
+              >
                 <CircularProgress />
               </Box>
             ) : (
@@ -251,7 +146,10 @@ const Profile = () => {
                   ))
                 ) : (
                   <Typography variant="h6" component="div">
-                    {toggle === "events"
+                    {(eventsSelected && groupsSelected) ||
+                    (!eventsSelected && !groupsSelected)
+                      ? "No events or groups found."
+                      : eventsSelected
                       ? "No events found."
                       : "No groups found."}
                   </Typography>
@@ -259,59 +157,199 @@ const Profile = () => {
               </Box>
             )}
           </Box>
-        </TabPanel>
-        <TabPanel value={tabValue} index={1}>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              flex: 1,
-              justifyContent: "center",
-              mb: 3,
-            }}
-          >
-            <ToggleButtonGroup
-              size="small"
-              value={toggle}
-              onChange={handleToggleChange}
-              exclusive
+        )}
+      </div>
+    );
+  }
+
+  TabPanel.propTypes = {
+    children: PropTypes.node,
+    index: PropTypes.number.isRequired,
+    value: PropTypes.number.isRequired,
+  };
+
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        flex: 1,
+        alignItems: "center",
+        padding: 2,
+        paddingBottom: 5,
+      }}
+    >
+      {user ? (
+        <Box
+          sx={{
+            display: "flex",
+            flex: 1,
+            flexDirection: "column",
+            width: "100%",
+          }}
+        >
+          <Stack direction="column" spacing={1} sx={{ alignItems: "center" }}>
+            <Button
+              variant="outlined"
+              onClick={handleSignOut}
+              sx={{ marginLeft: "auto !important", width: "fit-content" }}
             >
-              <ToggleButton value="event">Events</ToggleButton>
-              <ToggleButton value="group">Groups</ToggleButton>
-            </ToggleButtonGroup>
+              Log Out
+            </Button>
+            <Avatar src={user?.photoURL} sx={{ width: 70, height: 70 }} />
+            <Typography sx={{ fontSize: "medium", mb: 0 }} color="text.primary">
+              {user?.displayName}
+            </Typography>
+            <Typography
+              sx={{ fontSize: "medium", maxWidth: 200, mb: 0 }}
+              color="text.primary"
+            >
+              {user?.email}
+            </Typography>
+          </Stack>
+
+          <Box sx={{ width: "100%" }}>
+            <Tabs
+              value={tabValue}
+              onChange={handleTabChange}
+              aria-label="basic tabs example"
+              centered
+            >
+              <Tab
+                icon={<Login />}
+                iconPosition="start"
+                label="Joined"
+                sx={{ width: "50%", maxWidth: "unset" }}
+              />
+              <Tab
+                icon={<AddBox />}
+                iconPosition="start"
+                label="Created"
+                sx={{ width: "50%", maxWidth: "unset" }}
+              />
+            </Tabs>
+
+            <Box sx={{ display: "flex", marginTop: 2 }}>
+              <ToggleButton
+                value={"Events"}
+                selected={eventsSelected}
+                onChange={() => {
+                  setEventsSelected(!eventsSelected);
+                }}
+                sx={{
+                  marginRight: 1,
+                  flexGrow: 1,
+                  height: 32,
+                }}
+                size="small"
+              >
+                Events
+              </ToggleButton>
+              <ToggleButton
+                value={"Groups"}
+                selected={groupsSelected}
+                onChange={() => {
+                  setGroupsSelected(!groupsSelected);
+                }}
+                sx={{
+                  marginRight: 1,
+                  flexGrow: 1,
+                  height: 32,
+                }}
+                size="small"
+              >
+                Groups
+              </ToggleButton>
+
+              <Button
+                sx={{
+                  marginLeft: 0,
+                  minWidth: "unset",
+                  width: "fit-content",
+                  height: 32,
+                }}
+                size="small"
+                variant="outlined"
+                onClick={handleClick}
+              >
+                <Tune sx={{ color: "white" }} />
+              </Button>
+              <Menu
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+              >
+                <MenuItem
+                  onClick={() => {
+                    if (filter === "upcoming") {
+                      setFilter("default");
+                    } else if (filter === "default") {
+                      setFilter("upcoming");
+                    } else {
+                      setFilter("ongoing");
+                    }
+                  }}
+                >
+                  <ListItemIcon>
+                    <Checkbox
+                      edge="start"
+                      checked={filter === "default" || filter === "ongoing"}
+                      tabIndex={-1}
+                      disableRipple
+                      inputProps={{ "aria-labelledby": "Ongoing" }}
+                    />
+                  </ListItemIcon>
+                  <ListItemText primary={"Ongoing"} />
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    if (filter === "ongoing") {
+                      setFilter("default");
+                    } else if (filter === "default") {
+                      setFilter("ongoing");
+                    } else {
+                      setFilter("upcoming");
+                    }
+                  }}
+                >
+                  <ListItemIcon>
+                    <Checkbox
+                      edge="start"
+                      checked={filter === "default" || filter === "upcoming"}
+                      tabIndex={-1}
+                      disableRipple
+                      inputProps={{ "aria-labelledby": "Upcoming" }}
+                    />
+                  </ListItemIcon>
+                  <ListItemText primary={"Upcoming"} />
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    setFilter("past");
+                  }}
+                >
+                  <ListItemIcon>
+                    <Checkbox
+                      edge="start"
+                      checked={filter === "past"}
+                      tabIndex={-1}
+                      disableRipple
+                      inputProps={{ "aria-labelledby": "Past" }}
+                    />
+                  </ListItemIcon>
+                  <ListItemText primary={"Past"} />
+                </MenuItem>
+              </Menu>
+            </Box>
           </Box>
-          {!loaded ? (
-            <Box sx={{ display: "flex" }}>
-              <CircularProgress />
-            </Box>
-          ) : (
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "Column",
-                flexGrow: 1,
-              }}
-            >
-              {events.length > 0 ? (
-                events.map((data) => (
-                  <BasicCard
-                    key={data.id}
-                    {...data.data()}
-                    eventUid={data.id}
-                    loadEvents={loadEvents}
-                  />
-                ))
-              ) : (
-                <Typography variant="h6" component="div">
-                  {toggle === "events"
-                    ? "No events found."
-                    : "No groups found."}
-                </Typography>
-              )}
-            </Box>
-          )}
-        </TabPanel>
-      </Box>
+
+          <TabPanel value={tabValue} index={0} />
+          <TabPanel value={tabValue} index={1} />
+        </Box>
+      ) : (
+        <LoginButton sx={{ marginTop: 5 }} />
+      )}
     </Box>
   );
 };
