@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { db } from "../firebase";
@@ -10,7 +10,6 @@ import {
   doc,
   updateDoc,
   arrayUnion,
-  setDoc,
 } from "firebase/firestore";
 
 import {
@@ -50,11 +49,6 @@ const Create = ({ event }) => {
   const navigate = useNavigate();
   const [showTooltip, setShowTooltip] = useState(false);
   const [displayMap, setDisplayMap] = useState(false);
-
-  const [longitude, setLongitude] = useState(
-    event ? event.longitude : 103.7769
-  );
-  const [latitude, setLatitude] = useState(event ? event.latitude : 1.2959);
 
   const onSubmit = async (data) => {
     // Add a new document in collection "events"
@@ -117,10 +111,9 @@ const Create = ({ event }) => {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          paddingBottom: 10,
           minWidth: 260,
-          paddingRight: "10%",
-          paddingLeft: "10%",
+          padding: 2,
+          paddingBottom: 10,
         }}
       >
         <Typography
@@ -143,6 +136,7 @@ const Create = ({ event }) => {
               }}
               fullWidth
               sx={{ marginBottom: 2 }}
+              size="small"
             >
               <ToggleButton value="Event">Event</ToggleButton>
               <ToggleButton value="Group">Group</ToggleButton>
