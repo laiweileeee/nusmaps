@@ -4,7 +4,7 @@ import { Fab } from "@mui/material";
 export const StyledFab = styled(Fab)({
   backgroundColor: "#0E1928",
   color: "#FFFFFF",
-  position: "absolute",
+  position: "fixed",
   zIndex: 1,
   top: "auto",
   bottom: 80,
