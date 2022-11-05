@@ -4,9 +4,10 @@ import {
   SearchIconWrapper,
   StyledInputBase,
 } from "../components/Search";
+
 const SearchBar = ({ filterEvents, setSearchedVal }) => {
   return (
-    <Search sx={{ marginTop: "2%" }}>
+    <Search sx={{ marginBottom: 2 }}>
       <SearchIconWrapper>
         <SearchIcon type="submit" aria-label="search" />
       </SearchIconWrapper>

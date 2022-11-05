@@ -13,30 +13,24 @@ import {
   AccessTime,
   ExpandMoreOutlined,
   Group,
+  Delete,
+  Edit,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import moment from "moment";
 import { LngLat } from "mapbox-gl";
 import { LocationContext } from "../contexts/LocationProvider";
-import { doc, updateDoc, arrayUnion, deleteDoc } from "firebase/firestore";
+import {
+  doc,
+  updateDoc,
+  arrayUnion,
+  deleteDoc,
+  arrayRemove,
+  Timestamp,
+} from "firebase/firestore";
 import { db } from "../firebase";
 import { AuthContext } from "../contexts/AuthProvider";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import {
-  useNavigate,
-  useSearchParams,
-  createSearchParams,
-  useMatch,
-} from "react-router-dom";
-
-const dateTimeOptions = {
-  year: "numeric",
-  month: "numeric",
-  day: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-};
+import { useNavigate, createSearchParams, useMatch } from "react-router-dom";
 
 const bull = (
   <Box
@@ -73,16 +67,16 @@ const BasicCard = ({
   capacity,
   participants = [],
   eventUid,
-  loadEvents,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const { currentLocation } = useContext(LocationContext);
   const [currentParticipants, setCurrentParticipants] = useState(participants);
-  const distanceFromUser = (
-    new LngLat(longitude, latitude).distanceTo(currentLocation) / 1000
-  ).toFixed(2);
-  const { user, auth } = useContext(AuthContext);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const distanceFromUser = currentLocation
+    ? (
+        new LngLat(longitude, latitude).distanceTo(currentLocation) / 1000
+      ).toFixed(2)
+    : "XX";
+  const { user } = useContext(AuthContext);
 
   const navigate = useNavigate();
   const match = useMatch("/profile");
@@ -91,9 +85,22 @@ const BasicCard = ({
     setExpanded(!expanded);
   };
 
+  function getRelativeTime() {
+    if (endDateTime > Timestamp.now()) {
+      if (startDateTime < Timestamp.now()) {
+        // ongoing
+        return "Ending " + moment(endDateTime.toDate()).fromNow();
+      } else {
+        // upcoming
+        return "Starting " + moment(startDateTime.toDate()).fromNow();
+      }
+    } else {
+      // past
+      return "Ended " + moment(endDateTime.toDate()).fromNow();
+    }
+  }
+
   function hasJoined() {
-    console.log("hasjoinedparticipants");
-    console.log(currentParticipants);
     return currentParticipants.includes(user.uid);
   }
 
@@ -107,6 +114,7 @@ const BasicCard = ({
   function canJoin() {
     return !hasJoined() && hasCapacityToJoin();
   }
+
   const doJoin = async () => {
     const docRef = doc(db, "events", eventUid);
 
@@ -114,10 +122,17 @@ const BasicCard = ({
       participants: arrayUnion(user.uid),
     });
     setCurrentParticipants([...currentParticipants, user.uid]);
-    // currentParticipants.push(user.uid);
-    console.log("NEW PARTICIPANTS");
-    console.log(currentParticipants);
-    // loadEvents();
+  };
+
+  const doLeave = async () => {
+    const docRef = doc(db, "events", eventUid);
+
+    await updateDoc(docRef, {
+      participants: arrayRemove(user.uid),
+    });
+    setCurrentParticipants(
+      currentParticipants.filter((participantId) => participantId !== user.uid)
+    );
   };
 
   const handleEdit = () => {
@@ -132,14 +147,6 @@ const BasicCard = ({
   const handleDelete = async () => {
     await deleteDoc(doc(db, "events", eventUid));
   };
-
-  // console.log("participants");
-  // console.log(participants);
-  // console.log(!hasJoined());
-  // console.log(!hasCapacityToJoin());
-
-  // console.log(canJoin());
-  // console.log(currentParticipants);
 
   return (
     <Card
@@ -158,14 +165,19 @@ const BasicCard = ({
           }}
         >
           <Typography
-            sx={{ fontSize: "small", alignItems: "center" }}
+            sx={{ fontSize: "small", alignItems: "center", marginRight: 1 }}
             color="text.secondary"
           >
             {type || "type"} {bull} {distanceFromUser + " km" || "XX km"} {bull}{" "}
-            {moment(startDateTime.toDate()).fromNow() || "XX"}
+            {getRelativeTime() || "XX"}
           </Typography>
           <Typography
-            sx={{ display: "flex", alignItems: "center" }}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              minWidth: "fit-content",
+              justifyContent: "flex-end",
+            }}
             variant="body2"
             color="text.secondary"
           >
@@ -195,11 +207,10 @@ const BasicCard = ({
             >
               <AccessTime fontSize="inherit" sx={{ mr: 0.5 }} />
               {startDateTime || endDateTime
-                ? `${startDateTime
-                    .toDate()
-                    .toLocaleString([], dateTimeOptions)} - ${endDateTime
-                    .toDate()
-                    .toLocaleString([], dateTimeOptions)}`
+                ? `${moment(startDateTime.toDate()).format("D MMM YY, h:mma")}
+                     - ${moment(endDateTime.toDate()).format(
+                       "D MMM YY, h:mma"
+                     )}`
                 : "time - time"}
             </Typography>
             <Typography
@@ -246,26 +257,38 @@ const BasicCard = ({
                 justifyContent: "space-between",
               }}
             >
-              {user && user.uid !== creatorId ? ( // can only join if not creator
-                <Button
-                  onClick={() => {
-                    doJoin();
-                  }}
-                  variant="contained"
-                  disabled={!canJoin()}
-                >
-                  {hasCapacityToJoin()
-                    ? hasJoined()
-                      ? "Joined"
-                      : type === "Event"
-                      ? "Join Event"
-                      : "Join Group"
-                    : "Full"}
-                </Button>
+              {user &&
+              user.uid !== creatorId &&
+              endDateTime > Timestamp.now() ? ( // can only join if not creator
+                !hasJoined() ? (
+                  <Button
+                    onClick={() => {
+                      doJoin();
+                    }}
+                    variant="contained"
+                    disabled={!canJoin()}
+                  >
+                    {hasCapacityToJoin()
+                      ? type === "Event"
+                        ? "Join Event"
+                        : "Join Group"
+                      : "Full"}
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => {
+                      doLeave();
+                    }}
+                    variant="outlined"
+                  >
+                    {type === "Event" ? "Leave Event" : "Leave Group"}
+                  </Button>
+                )
               ) : (
-                <div></div>
+                <></>
               )}
-              {user.uid === creatorId &&
+              {user &&
+                user.uid === creatorId &&
                 match && ( // only shows if on '/profile' and is creator
                   <Box
                     sx={{
@@ -273,8 +296,8 @@ const BasicCard = ({
                       alignItems: "center",
                     }}
                   >
-                    <EditIcon onClick={() => handleEdit(eventUid)} />
-                    <DeleteIcon sx={{ ml: "0.5rem" }} onClick={handleDelete} />
+                    <Edit onClick={() => handleEdit(eventUid)} />
+                    <Delete sx={{ ml: "0.5rem" }} onClick={handleDelete} />
                   </Box>
                 )}
             </Box>

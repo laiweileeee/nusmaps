@@ -1,44 +1,47 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PropTypes from "prop-types";
 import {
   Box,
   CircularProgress,
   ToggleButton,
   Typography,
-  Toolbar,
-  Modal,
+  Button,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  Checkbox,
 } from "@mui/material";
-import AppBar from "@mui/material/AppBar";
-import TuneIcon from "@mui/icons-material/Tune";
+import { Add, Tune } from "@mui/icons-material";
 
 import BasicCard from "../components/BasicCard";
-
-import { db } from "../firebase";
-import {
-  collection,
-  query,
-  where,
-  orderBy,
-  limit,
-  onSnapshot,
-  Timestamp,
-} from "firebase/firestore";
-import { Add } from "@mui/icons-material";
-
 import SearchBar from "../components/SearchBar";
 import { StyledFab } from "../components/StyledFab";
 
+import { AuthContext } from "../contexts/AuthProvider";
+
+import { getOngoing, getUpcoming, getPast } from "../api/API";
+
 const ListView = () => {
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+
   const [events, setEvents] = useState([]); //TODO: rename events to something else
   const [loaded, setLoaded] = useState();
-  const [eventsSelected, setEventsSelected] = useState(true);
-  const [earliestSelected, setEarliestSelected] = useState(true);
-  const [value, setValue] = React.useState(0);
-  const [open, setOpen] = React.useState(false);
-  // const dataFiltered = filterData(searchQuery, events);
+  const [eventsSelected, setEventsSelected] = useState(false);
+  const [groupsSelected, setGroupsSelected] = useState(false);
+  const [filter, setFilter] = useState("default");
   const [searchedVal, setSearchedVal] = useState("");
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   function filterEvents(query) {
     if (!query) {
@@ -50,87 +53,40 @@ const ListView = () => {
   }
 
   // Loads events and listens for upcoming ones.
-  const loadEvents = () => {
-    const type = eventsSelected ? "Event" : "Group";
+  const loadEvents = async () => {
+    let type = null;
 
-    // Create the query to load the last 12 documents and listen for new ones.
-    const recentEventsQuery = query(
-      collection(db, "events"),
-      where("type", "==", type),
-      where("startDateTime", ">=", Timestamp.now()),
-      orderBy("startDateTime", "asc"),
-      limit(12)
-    );
+    if (
+      (eventsSelected && !groupsSelected) ||
+      (!eventsSelected && groupsSelected)
+    ) {
+      type = eventsSelected ? "Event" : "Group";
+    }
 
-    // Start listening to the query.
-    onSnapshot(recentEventsQuery, function (snapshot) {
-      if (!snapshot.size) {
-        setEvents([]);
-      }
-
-      const eventsList = [];
-      snapshot.forEach((doc) => eventsList.push(doc));
-      setEvents(eventsList);
-    });
+    if (filter === "default") {
+      const ongoing = await getOngoing(type, null, null);
+      const upcoming = await getUpcoming(type, null, null);
+      setEvents(ongoing.concat(upcoming));
+    } else if (filter === "ongoing") {
+      const ongoing = await getOngoing(type, null, null);
+      setEvents(ongoing);
+    } else if (filter === "upcoming") {
+      const upcoming = await getUpcoming(type, null, null);
+      setEvents(upcoming);
+    } else if (filter === "past") {
+      const past = await getPast(type, null, null);
+      setEvents(past);
+    }
 
     setLoaded(true);
   };
 
   useEffect(() => {
     loadEvents();
-  }, [eventsSelected, earliestSelected]);
-
-  console.log("events ", events);
-
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-  function TabPanel(props) {
-    const { children, value, index, ...other } = props;
-
-    return (
-      <div
-        role="tabpanel"
-        hidden={value !== index}
-        id={`simple-tabpanel-${index}`}
-        aria-labelledby={`simple-tab-${index}`}
-        {...other}
-      >
-        {value === index && <>{children}</>}
-      </div>
-    );
-  }
-
-  TabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired,
-  };
+  }, [eventsSelected, groupsSelected, filter]);
 
   return (
     <>
-      <AppBar position="sticky">
-        <Toolbar>
-          {/* <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ "aria-label": "search" }}
-            />
-          </Search> */}
-          <SearchBar
-            setSearchedVal={setSearchedVal}
-            filterEvents={filterEvents}
-          />
-        </Toolbar>
-      </AppBar>
-
-      {/* All page */}
       <Box
         sx={{
           display: "flex",
@@ -138,35 +94,142 @@ const ListView = () => {
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
-          padding: 1,
-          paddingTop: 3,
-          paddingBottom: 10,
+          padding: 2,
+          paddingBottom: 8,
         }}
       >
         <Box
-          sx={{
+          sx={(theme) => ({
             minWidth: 260,
-            width: "90%",
+            width: "100%",
             paddingBottom: 2,
-          }}
+            [theme.breakpoints.up("sm")]: {
+              width: 360,
+              marginRight: "auto",
+            },
+          })}
         >
-          {/*<Button variant="outlined" onClick={() => navigate("/create")}>*/}
-          {/*  Create Event*/}
-          {/*</Button>*/}
-          <Box
-            sx={{
-              display: "flex",
-              flex: 1,
-              alignItems: "center",
-              justifyContent: "flex-end",
-            }}
-          >
-            <TuneIcon onClick={handleOpen} />
+          <SearchBar
+            setSearchedVal={setSearchedVal}
+            filterEvents={filterEvents}
+          />
+          <Box sx={{ display: "flex" }}>
+            <ToggleButton
+              value={"Events"}
+              selected={eventsSelected}
+              onChange={() => {
+                setEventsSelected(!eventsSelected);
+              }}
+              sx={{
+                marginRight: 1,
+                flexGrow: 1,
+                height: 32,
+              }}
+              size="small"
+            >
+              Events
+            </ToggleButton>
+            <ToggleButton
+              value={"Groups"}
+              selected={groupsSelected}
+              onChange={() => {
+                setGroupsSelected(!groupsSelected);
+              }}
+              sx={{
+                marginRight: 1,
+                flexGrow: 1,
+                height: 32,
+              }}
+              size="small"
+            >
+              Groups
+            </ToggleButton>
+
+            <Button
+              sx={{
+                marginLeft: 0,
+                minWidth: "unset",
+                width: "fit-content",
+                height: 32,
+              }}
+              size="small"
+              variant="outlined"
+              onClick={handleClick}
+            >
+              <Tune sx={{ color: "white" }} />
+            </Button>
+            <Menu
+              id="basic-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+            >
+              <MenuItem
+                onClick={() => {
+                  if (filter === "upcoming") {
+                    setFilter("default");
+                  } else if (filter === "default") {
+                    setFilter("upcoming");
+                  } else {
+                    setFilter("ongoing");
+                  }
+                }}
+              >
+                <ListItemIcon>
+                  <Checkbox
+                    edge="start"
+                    checked={filter === "default" || filter === "ongoing"}
+                    tabIndex={-1}
+                    disableRipple
+                    inputProps={{ "aria-labelledby": "Ongoing" }}
+                  />
+                </ListItemIcon>
+                <ListItemText primary={"Ongoing"} />
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  if (filter === "ongoing") {
+                    setFilter("default");
+                  } else if (filter === "default") {
+                    setFilter("ongoing");
+                  } else {
+                    setFilter("upcoming");
+                  }
+                }}
+              >
+                <ListItemIcon>
+                  <Checkbox
+                    edge="start"
+                    checked={filter === "default" || filter === "upcoming"}
+                    tabIndex={-1}
+                    disableRipple
+                    inputProps={{ "aria-labelledby": "Upcoming" }}
+                  />
+                </ListItemIcon>
+                <ListItemText primary={"Upcoming"} />
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  setFilter("past");
+                }}
+              >
+                <ListItemIcon>
+                  <Checkbox
+                    edge="start"
+                    checked={filter === "past"}
+                    tabIndex={-1}
+                    disableRipple
+                    inputProps={{ "aria-labelledby": "Past" }}
+                  />
+                </ListItemIcon>
+                <ListItemText primary={"Past"} />
+              </MenuItem>
+            </Menu>
           </Box>
         </Box>
 
         {!loaded ? (
-          <Box sx={{ display: "flex" }}>
+          <Box sx={{ display: "flex", flexGrow: 1, alignItems: "center" }}>
             <CircularProgress />
           </Box>
         ) : (
@@ -176,7 +239,7 @@ const ListView = () => {
               flexDirection: "Column",
               flexGrow: 1,
               minWidth: 260,
-              width: "90%",
+              width: "100%",
             }}
           >
             {events.length > 0 ? (
@@ -201,75 +264,20 @@ const ListView = () => {
                 ))
             ) : (
               <Typography variant="h6" component="div">
-                {eventsSelected ? "No events found." : "No groups found."}
+                {eventsSelected && groupsSelected
+                  ? "No events or groups found."
+                  : eventsSelected
+                  ? "No events found."
+                  : "No groups found."}
               </Typography>
             )}
           </Box>
         )}
-
-        <Modal
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              bgcolor: "background.paper",
-              border: "2px solid #000",
-              width: "300px",
-              boxShadow: 24,
-              p: 4,
-            }}
-          >
-            <Typography variant="h6" component="div" sx={{ marginTop: 1 }}>
-              Type
-            </Typography>
-            <ToggleButton
-              sx={{ marginRight: 1 }}
-              selected={eventsSelected}
-              onChange={() => {
-                setEventsSelected(true);
-              }}
-            >
-              Events
-            </ToggleButton>
-            <ToggleButton
-              selected={!eventsSelected}
-              onChange={() => {
-                setEventsSelected(false);
-              }}
-            >
-              Groups
-            </ToggleButton>
-            <Typography variant="h6" component="div" sx={{ marginTop: 1 }}>
-              Sort
-            </Typography>
-            <ToggleButton
-              sx={{ marginRight: 1 }}
-              selected={earliestSelected}
-              onChange={() => {
-                setEarliestSelected(!earliestSelected);
-              }}
-            >
-              Earliest First
-            </ToggleButton>
-            <ToggleButton
-              selected={!earliestSelected}
-              onChange={() => {
-                setEarliestSelected(!earliestSelected);
-              }}
-            >
-              Nearest First
-            </ToggleButton>
-          </Box>
-        </Modal>
       </Box>
-      <StyledFab color="secondary" onClick={() => navigate("/create")}>
+      <StyledFab
+        color="secondary"
+        onClick={() => navigate(user ? "/create" : "/profile")}
+      >
         <Add />
       </StyledFab>
     </>
