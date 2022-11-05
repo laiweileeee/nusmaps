@@ -32,14 +32,6 @@ import { db } from "../firebase";
 import { AuthContext } from "../contexts/AuthProvider";
 import { useNavigate, createSearchParams, useMatch } from "react-router-dom";
 
-const dateTimeOptions = {
-  year: "numeric",
-  month: "numeric",
-  day: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-};
-
 const bull = (
   <Box
     component="span"
