@@ -183,7 +183,7 @@ const BasicCard = ({
             sx={{
               display: "flex",
               alignItems: "center",
-              minWidth: 65,
+              minWidth: "fit-content",
               justifyContent: "flex-end",
             }}
             variant="body2"
