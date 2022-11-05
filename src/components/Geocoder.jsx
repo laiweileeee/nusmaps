@@ -18,6 +18,7 @@ export const Geocoder = (props) => {
             latitude: 1.2907,
           },
           countries: "SG",
+          marker: false,
         }),
       {
         position: props.position,
