@@ -2,7 +2,7 @@
 import React from "react";
 import GoogleButton from "react-google-button";
 import { useContext } from "react";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider, signInWithRedirect } from "firebase/auth";
 import { AuthContext } from "../contexts/AuthProvider";
 import Box from "@mui/material/Box";
 import {
@@ -25,11 +25,10 @@ const LoginButton = () => {
     const provider = new GoogleAuthProvider();
     const userRef = collection(db, "users");
 
-    await signInWithPopup(auth, provider).then(async (cred) => {
+    await signInWithRedirect(auth, provider).then(async (cred) => {
       const q = query(userRef, where("uid", "==", cred.user.uid));
       const querySnapshot = await getDocs(q);
       if (querySnapshot.empty) {
-        console.log(cred.user.email);
         await setDoc(doc(db, "users", cred.user.uid), {
           uid: cred.user.uid,
           displayName: cred.user.displayName,
@@ -38,7 +37,6 @@ const LoginButton = () => {
           bio: "",
         });
       }
-      console.log(cred.user);
     });
   }
 
