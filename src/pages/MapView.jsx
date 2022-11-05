@@ -201,7 +201,11 @@ const MapView = () => {
           position="bottom-left"
           style={{ "margin-bottom": "50px" }}
         />
-        <GeolocateControl showAccuracyCircle={false} position="bottom-left" />
+        <GeolocateControl
+          showAccuracyCircle={false}
+          position="bottom-left"
+          positionOptions={{ timeout: 30000 }}
+        />
 
         {geoEvents !== null && (
           <Source
@@ -243,13 +247,18 @@ const MapView = () => {
                 onClick={(e) => {
                   e.originalEvent.stopPropagation();
                   setPopupInfo(event);
+                  mapRef.current.flyTo({
+                    center: e.target.getLngLat(),
+                  });
                 }}
               />
             ))
           : null}
+
         {popupInfo ? (
           <Popup
             anchor="top"
+            closeButton={false}
             longitude={popupInfo.data().longitude}
             latitude={popupInfo.data().latitude}
             onClose={() => setPopupInfo(null)}
@@ -258,7 +267,6 @@ const MapView = () => {
               key={popupInfo.data().title}
               eventUid={popupInfo.id}
               {...popupInfo.data()}
-              style={{ mb: "0 !important" }}
             />
           </Popup>
         ) : null}

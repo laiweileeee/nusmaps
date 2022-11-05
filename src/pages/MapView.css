@@ -15,10 +15,6 @@
   width: fit-content;
 }
 
-.mapboxgl-popup-close-button {
-  display: none;
-}
-
 .mapboxgl-ctrl-top-left {
   width: calc(100% - 20px);
 }
