@@ -128,7 +128,7 @@ const MapView = () => {
   };
 
   // Loads events and listens for upcoming ones.
-  const loadEvents = async () => {
+  const loadEvents = useCallback(async () => {
     let type = null;
 
     if (
@@ -156,7 +156,7 @@ const MapView = () => {
       setEvents(past);
       parseGeoData(past);
     }
-  };
+  }, [eventsSelected, groupsSelected, filter]);
 
   const parseGeoData = (eventsList) => {
     let coordinates = [];
@@ -181,7 +181,7 @@ const MapView = () => {
 
   useEffect(() => {
     loadEvents();
-  }, [eventsSelected, groupsSelected, filter]);
+  }, [eventsSelected, groupsSelected, filter, loadEvents]);
 
   return (
     <>
