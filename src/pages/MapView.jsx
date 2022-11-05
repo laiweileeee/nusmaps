@@ -38,8 +38,7 @@ import { AuthContext } from "../contexts/AuthProvider";
 
 import { getOngoing, getUpcoming, getPast } from "../api/API";
 
-const MAPBOX_TOKEN =
-  "pk.eyJ1IjoibmljbHF0IiwiYSI6ImNsOWR6YWk1ejA0Y2UzcG95djhucHlqaTEifQ.gHrtX5AcWucEpY3W3n1DQQ";
+const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
 
 const MapView = () => {
   const mapRef = useRef();
