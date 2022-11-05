@@ -32,14 +32,6 @@ import { db } from "../firebase";
 import { AuthContext } from "../contexts/AuthProvider";
 import { useNavigate, createSearchParams, useMatch } from "react-router-dom";
 
-const dateTimeOptions = {
-  year: "numeric",
-  month: "numeric",
-  day: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-};
-
 const bull = (
   <Box
     component="span"
@@ -215,11 +207,10 @@ const BasicCard = ({
             >
               <AccessTime fontSize="inherit" sx={{ mr: 0.5 }} />
               {startDateTime || endDateTime
-                ? `${startDateTime
-                    .toDate()
-                    .toLocaleString([], dateTimeOptions)} - ${endDateTime
-                    .toDate()
-                    .toLocaleString([], dateTimeOptions)}`
+                ? `${moment(startDateTime.toDate()).format("D MMM YY, h:mma")}
+                     - ${moment(endDateTime.toDate()).format(
+                       "D MMM YY, h:mma"
+                     )}`
                 : "time - time"}
             </Typography>
             <Typography
@@ -288,7 +279,7 @@ const BasicCard = ({
                     onClick={() => {
                       doLeave();
                     }}
-                    variant="contained"
+                    variant="outlined"
                   >
                     {type === "Event" ? "Leave Event" : "Leave Group"}
                   </Button>
