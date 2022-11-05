@@ -274,11 +274,12 @@ const ListView = () => {
           </Box>
         )}
       </Box>
-      {user ? (
-        <StyledFab color="secondary" onClick={() => navigate("/create")}>
-          <Add />
-        </StyledFab>
-      ) : null}
+      <StyledFab
+        color="secondary"
+        onClick={() => navigate(user ? "/create" : "/profile")}
+      >
+        <Add />
+      </StyledFab>
     </>
   );
 };
