@@ -6,7 +6,7 @@ import { db } from "../firebase";
 import moment from "moment";
 
 const Edit = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [event, setEvent] = useState();
 
   useEffect(() => {
@@ -28,7 +28,7 @@ const Edit = () => {
     };
 
     fetchEvent();
-  }, [searchParams.get("id")]);
+  }, [searchParams]);
 
   return event ? (
     <Create

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useCallback } from "react";
 
 import PropTypes from "prop-types";
 import {
@@ -60,7 +60,7 @@ const Profile = () => {
   };
 
   // Loads events and listens for upcoming ones.
-  const loadEvents = async () => {
+  const loadEvents = useCallback(async () => {
     let type = null;
     if (
       (eventsSelected && !groupsSelected) ||
@@ -93,13 +93,13 @@ const Profile = () => {
     }
 
     setLoaded(true);
-  };
+  }, [user, tabValue, eventsSelected, groupsSelected, filter]);
 
   useEffect(() => {
     if (user) {
       loadEvents();
     }
-  }, [user, tabValue, eventsSelected, groupsSelected, filter]);
+  }, [user, tabValue, eventsSelected, groupsSelected, filter, loadEvents]);
 
   function TabPanel(props) {
     const { children, value, index, ...other } = props;

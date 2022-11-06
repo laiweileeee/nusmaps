@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -52,8 +52,7 @@ const ListView = () => {
     }
   }
 
-  // Loads events and listens for upcoming ones.
-  const loadEvents = async () => {
+  const loadEvents = useCallback(async () => {
     let type = null;
 
     if (
@@ -79,11 +78,13 @@ const ListView = () => {
     }
 
     setLoaded(true);
-  };
+  }, [eventsSelected, groupsSelected, filter]);
+
+  // Loads events and listens for upcoming ones.
 
   useEffect(() => {
     loadEvents();
-  }, [eventsSelected, groupsSelected, filter]);
+  }, [eventsSelected, groupsSelected, filter, loadEvents]);
 
   return (
     <>
