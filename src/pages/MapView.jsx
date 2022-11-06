@@ -42,6 +42,9 @@ const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
 
 const MapView = () => {
   const mapRef = useRef();
+  const geolocateControlRef = useRef();
+  const [currentLocationLoaded, setCurrentLocationLoaded] = useState();
+
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
@@ -194,6 +197,14 @@ const MapView = () => {
         onClick={handleMapClick}
         ref={mapRef}
         reuseMaps
+        onIdle={() => {
+          if (!currentLocationLoaded) {
+            if (geolocateControlRef.current) {
+              setCurrentLocationLoaded("loading");
+              geolocateControlRef.current.trigger();
+            }
+          }
+        }}
       >
         <Geocoder position="top-left" />
         <NavigationControl
@@ -204,6 +215,16 @@ const MapView = () => {
           showAccuracyCircle={false}
           position="bottom-left"
           positionOptions={{ timeout: 30000 }}
+          trackUserLocation={true}
+          ref={geolocateControlRef}
+          onGeolocate={() => {
+            if (currentLocationLoaded === "loading") {
+              mapRef.current.flyTo({
+                zoom: mapRef.current.getZoom(),
+              });
+              setCurrentLocationLoaded("loaded");
+            }
+          }}
         />
 
         {geoEvents !== null && (
