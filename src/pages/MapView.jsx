@@ -20,7 +20,6 @@ import {
 import { Add, Tune } from "@mui/icons-material";
 
 import Map, {
-  Marker,
   Popup,
   GeolocateControl,
   NavigationControl,
@@ -74,14 +73,10 @@ const MapView = () => {
 
     const features = event.features || [];
     if (features.length > 0) {
-      if (features[0].layer.id != "clusters") { // if point is not a cluster, show popup
-        console.log("clicked point")
-
-
+      if (features[0].layer.id !== "clusters") { // if point is not a cluster, show popup
         var data = JSON.parse(features[0].properties.data);
-        // console.log(data);
         // match data title to event title
-        var event = events.find((event) => event.data().title == data.title);
+        var curEvent = events.find((e) => e.data().title === data.title);
         // console.log(event);
 
         // get current zoom level, ease map, and center point
@@ -92,13 +87,11 @@ const MapView = () => {
           duration: 500,
         });
 
-        setPopupInfo(event);
+        setPopupInfo(curEvent);
       } else {
-        // console.log("clicked cluster")
         if (event !== null && event.features[0] !== undefined) {
           const feature = event.features[0];
           const clusterId = feature.properties.cluster_id;
-          // console.log(mapRef);
           const mapboxSource = mapRef.current.getSource('geoData');
 
           mapboxSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
@@ -237,7 +230,6 @@ const MapView = () => {
         cursor={cursor}
         mapStyle="mapbox://styles/mapbox/streets-v9"
         mapboxAccessToken={MAPBOX_TOKEN}
-        interactiveLayerIds={["clusters", unclusteredPointLayer.id]}
         onClick={handleMapClick}
         ref={mapRef}
         reuseMaps
