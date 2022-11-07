@@ -230,6 +230,7 @@ const MapView = () => {
         cursor={cursor}
         mapStyle="mapbox://styles/mapbox/streets-v9"
         mapboxAccessToken={MAPBOX_TOKEN}
+        interactiveLayerIds={["clusters", unclusteredPointLayer.id]}
         onClick={handleMapClick}
         ref={mapRef}
         reuseMaps
