@@ -89,7 +89,7 @@ const MapView = () => {
         mapRef.current.easeTo({
           center: features[0].geometry.coordinates,
           zoom: zoom,
-          duration: 1000,
+          duration: 500,
         });
 
         setPopupInfo(event);
@@ -284,7 +284,6 @@ const MapView = () => {
             <Layer
               id="clusters"
               type="circle"
-              // onMouseEnter={() => { console.log("evt") }}
               filter={["has", "point_count"]}
               paint={layerVaryingCircleStyle}
             />
@@ -353,8 +352,8 @@ const MapView = () => {
             marginRight: 1,
             flexGrow: 1,
             height: 32,
-            color: "white",
-            backgroundColor: "#0A1929",
+            color: "black",
+            backgroundColor: "#fff",
             border: 0,
             "&:hover": {
               backgroundColor: "#fff",
@@ -375,8 +374,8 @@ const MapView = () => {
             marginRight: 1,
             flexGrow: 1,
             height: 32,
-            color: "white",
-            backgroundColor: "#0A1929",
+            color: "black",
+            backgroundColor: "#fff",
             border: 0,
             "&:hover": {
               backgroundColor: "#fff",
@@ -389,7 +388,7 @@ const MapView = () => {
 
         <Button
           sx={{
-            backgroundColor: "#0A1929 !important",
+            backgroundColor: "white !important",
             marginLeft: 0,
             minWidth: "unset",
             width: "fit-content",
@@ -399,7 +398,7 @@ const MapView = () => {
           variant="contained"
           onClick={handleClick}
         >
-          <Tune sx={{ color: "white !important" }} />
+          <Tune sx={{ color: "black" }} />
         </Button>
         <Menu
           id="basic-menu"

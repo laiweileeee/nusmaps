@@ -1,8 +1,8 @@
 import Create from "./pages/Create";
-import Home from "./pages/Home";
 import ListView from "./pages/ListView";
 import Map from "./pages/MapView";
 import Profile from "./pages/Profile";
+import Edit from "./pages/Edit";
 
 export const routes = [
   // {
@@ -18,6 +18,13 @@ export const routes = [
     path: "/create",
     enabled: true,
     component: Create,
+  },
+  {
+    key: "edit-route",
+    title: "Edit",
+    path: "/edit",
+    enabled: true,
+    component: Edit,
   },
   {
     key: "map-route",

@@ -1,15 +1,13 @@
-import { useState } from "react";
-import IconButton from "@mui/material/IconButton";
 import SearchIcon from "@mui/icons-material/Search";
-import TextField from "@mui/material/TextField";
 import {
   Search,
   SearchIconWrapper,
   StyledInputBase,
 } from "../components/Search";
+
 const SearchBar = ({ filterEvents, setSearchedVal }) => {
   return (
-    <Search sx={{ marginTop: "5%" }}>
+    <Search sx={{ marginBottom: 2 }}>
       <SearchIconWrapper>
         <SearchIcon type="submit" aria-label="search" />
       </SearchIconWrapper>

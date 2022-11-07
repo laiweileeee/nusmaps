@@ -7,6 +7,8 @@ import {
   addDoc,
   collection,
   Timestamp,
+  doc,
+  updateDoc,
 } from "firebase/firestore";
 
 import {
@@ -14,8 +16,6 @@ import {
   Button,
   FormControl,
   FormHelperText,
-  IconButton,
-  InputAdornment,
   InputLabel,
   Modal,
   OutlinedInput,
@@ -25,7 +25,6 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { Place } from "@mui/icons-material";
 
 import { NumericFormat } from "react-number-format";
 import Map, { Marker } from "react-map-gl";
@@ -35,40 +34,55 @@ import moment from "moment";
 import { Geocoder } from "../components/Geocoder";
 import { AuthContext } from "../contexts/AuthProvider";
 
-const MAPBOX_TOKEN =
-  "pk.eyJ1IjoibmljbHF0IiwiYSI6ImNsOWR6YWk1ejA0Y2UzcG95djhucHlqaTEifQ.gHrtX5AcWucEpY3W3n1DQQ";
+const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
 
-const Create = () => {
+const Create = ({ event }) => {
   const { user } = useContext(AuthContext);
 
-  const { handleSubmit, control, watch } = useForm();
-  const watchFields = watch(["startDateTime", "endDateTime"]);
+  const { handleSubmit, control, watch, setValue } = useForm({
+    defaultValues: event,
+  });
+  const watchFields = watch(["startDateTime", "endDateTime", "coordinates"]);
 
   const navigate = useNavigate();
   const [showTooltip, setShowTooltip] = useState(false);
-
   const [displayMap, setDisplayMap] = useState(false);
-  const [longitude, setLongitude] = useState(103.7769);
-  const [latitude, setLatitude] = useState(1.2959);
 
   const onSubmit = async (data) => {
     // Add a new document in collection "events"
-    await addDoc(collection(db, "events"), {
-      title: data.title,
-      description: data.description,
-      capacity: data.capacity,
-      type: data.type,
-      location: data.location,
-      longitude,
-      latitude,
-      startDateTime: Timestamp.fromDate(new Date(data.startDateTime)),
-      endDateTime: Timestamp.fromDate(new Date(data.endDateTime)),
-      creatorId: user.uid,
-      creatorName: user.displayName,
-      timestamp: serverTimestamp(),
-    });
+    if (!event) {
+      await addDoc(collection(db, "events"), {
+        title: data.title,
+        description: data.description,
+        capacity: data.capacity,
+        type: data.type,
+        location: data.location,
+        latitude: data.coordinates[0],
+        longitude: data.coordinates[1],
+        startDateTime: Timestamp.fromDate(new Date(data.startDateTime)),
+        endDateTime: Timestamp.fromDate(new Date(data.endDateTime)),
+        creatorId: user.uid,
+        creatorName: user.displayName,
+        timestamp: serverTimestamp(),
+      });
 
-    navigate("/list");
+      navigate("/list");
+    } else {
+      // Update doc
+      const docRef = doc(db, "events", event.eventId);
+      await updateDoc(docRef, {
+        title: data.title,
+        description: data.description,
+        capacity: data.capacity,
+        type: data.type,
+        location: data.location,
+        latitude: data.coordinates[0],
+        longitude: data.coordinates[1],
+        startDateTime: Timestamp.fromDate(new Date(data.startDateTime)),
+        endDateTime: Timestamp.fromDate(new Date(data.endDateTime)),
+      });
+      navigate("/profile");
+    }
   };
 
   // Custom number input bc material ui doesn't support it
@@ -95,17 +109,16 @@ const Create = () => {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          paddingBottom: 10,
           minWidth: 260,
-          paddingRight: "10%",
-          paddingLeft: "10%",
+          padding: 2,
+          paddingBottom: 10,
         }}
       >
         <Typography
           variant="h5"
           sx={{ paddingTop: 2, paddingBottom: 1, alignSelf: "flex-start" }}
         >
-          Create New Event
+          {event ? "Edit" : "Create New"} Event
         </Typography>
 
         <Controller
@@ -121,6 +134,7 @@ const Create = () => {
               }}
               fullWidth
               sx={{ marginBottom: 2 }}
+              size="small"
             >
               <ToggleButton value="Event">Event</ToggleButton>
               <ToggleButton value="Group">Group</ToggleButton>
@@ -142,6 +156,7 @@ const Create = () => {
               onChange={onChange}
               error={!!error}
               helperText={error ? error.message : null}
+              required
             />
           )}
           rules={{ required: "Title is required" }}
@@ -162,6 +177,7 @@ const Create = () => {
               onChange={onChange}
               error={!!error}
               helperText={error ? error.message : null}
+              required
             />
           )}
           rules={{ required: "Description is required" }}
@@ -186,6 +202,7 @@ const Create = () => {
               onChange={onChange}
               error={!!error}
               helperText={error ? error.message : null}
+              required
             />
           )}
           rules={{
@@ -215,6 +232,7 @@ const Create = () => {
               onChange={onChange}
               error={!!error}
               helperText={error ? error.message : null}
+              required
             />
           )}
           rules={{
@@ -226,12 +244,39 @@ const Create = () => {
         />
 
         <Controller
+          name="coordinates"
+          control={control}
+          defaultValue=""
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
+            <FormControl
+              variant="outlined"
+              sx={{ marginBottom: 2 }}
+              onClick={() => setDisplayMap(true)}
+              fullWidth
+              error={!!error}
+              required
+            >
+              <InputLabel htmlFor="coordinates">Coordinates</InputLabel>
+              <OutlinedInput
+                id="coordinates"
+                label="Coordinates"
+                value={value}
+                onChange={onChange}
+                readOnly
+              />
+              <FormHelperText>{error ? error.message : null}</FormHelperText>
+            </FormControl>
+          )}
+          rules={{ required: "Coordinates are required" }}
+        />
+
+        <Controller
           name="location"
           control={control}
           defaultValue=""
           render={({ field: { onChange, value }, fieldState: { error } }) => (
             <Tooltip
-              title="Please input location (eg. COM2 Seminar Room 1) and drop location pin"
+              title="Please input location details (eg. COM2 Seminar Room 1)."
               sx={{ width: "90%" }}
               open={showTooltip}
               arrow={true}
@@ -243,24 +288,12 @@ const Create = () => {
                 onBlur={() => setShowTooltip(false)}
                 fullWidth
                 error={!!error}
+                required
               >
                 <InputLabel htmlFor="location">Location</InputLabel>
                 <OutlinedInput
                   id="location"
-                  label="Password"
-                  endAdornment={
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => {
-                          setDisplayMap(true);
-                          setShowTooltip(false);
-                        }}
-                        edge="end"
-                      >
-                        <Place />
-                      </IconButton>
-                    </InputAdornment>
-                  }
+                  label="Location"
                   value={value}
                   onChange={onChange}
                   autoComplete="off"
@@ -291,11 +324,11 @@ const Create = () => {
               helperText={error ? error.message : null}
             />
           )}
-          rules={{ required: "End date and time is required" }}
+          rules={{ required: "Capacity is required" }}
         />
 
         <Button type="submit" variant="contained">
-          Create Event
+          {event ? "Edit" : "Create"} Event
         </Button>
       </Box>
 
@@ -322,18 +355,22 @@ const Create = () => {
             mapboxAccessToken={MAPBOX_TOKEN}
             reuseMaps
             style={{ borderRadius: 10, marginBottom: 8 }}
+            onClick={(e) =>
+              setValue("coordinates", [e.lngLat.lat, e.lngLat.lng])
+            }
           >
             <Geocoder position="top-left" />
-            <Marker
-              longitude={longitude}
-              latitude={latitude}
-              draggable
-              style={{ cursor: "pointer" }}
-              onDragEnd={(e) => {
-                setLongitude(e.lngLat.lng);
-                setLatitude(e.lngLat.lat);
-              }}
-            ></Marker>
+            {watchFields[2] ? (
+              <Marker
+                longitude={watchFields[2][1]}
+                latitude={watchFields[2][0]}
+                draggable
+                style={{ cursor: "pointer" }}
+                onDragEnd={(e) =>
+                  setValue("coordinates", [e.lngLat.lat, e.lngLat.lng])
+                }
+              ></Marker>
+            ) : null}
           </Map>
           <Button
             variant="contained"
