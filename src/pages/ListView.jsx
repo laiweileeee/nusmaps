@@ -96,9 +96,14 @@ const ListView = () => {
           justifyContent: "center",
           alignItems: "center",
           padding: 2,
+          paddingTop: 0,
           paddingBottom: 8,
         }}
       >
+        <SearchBar
+          setSearchedVal={setSearchedVal}
+          filterEvents={filterEvents}
+        />
         <Box
           sx={(theme) => ({
             minWidth: 260,
@@ -110,10 +115,6 @@ const ListView = () => {
             },
           })}
         >
-          <SearchBar
-            setSearchedVal={setSearchedVal}
-            filterEvents={filterEvents}
-          />
           <Box sx={{ display: "flex" }}>
             <ToggleButton
               value={"Events"}
@@ -228,7 +229,6 @@ const ListView = () => {
             </Menu>
           </Box>
         </Box>
-
         {!loaded ? (
           <Box sx={{ display: "flex", flexGrow: 1, alignItems: "center" }}>
             <CircularProgress />
