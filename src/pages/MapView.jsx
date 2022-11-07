@@ -55,8 +55,8 @@ const MapView = () => {
 
   const [events, setEvents] = useState([]); //TODO: rename events to something else
   const [geoEvents, setGeoEvents] = useState(null);
-  const [eventsSelected, setEventsSelected] = useState(true);
-  const [groupsSelected, setGroupsSelected] = useState(true);
+  const [eventsSelected, setEventsSelected] = useState(false);
+  const [groupsSelected, setGroupsSelected] = useState(false);
   const [filter, setFilter] = useState("default");
   const [popupInfo, setPopupInfo] = useState();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -98,8 +98,10 @@ const MapView = () => {
             if (err) {
               return;
             }
-
             mapRef.current.easeTo({
+              padding: {
+                bottom: 250
+              },
               center: feature.geometry.coordinates,
               zoom,
               duration: 500
