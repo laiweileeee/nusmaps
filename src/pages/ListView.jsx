@@ -11,6 +11,7 @@ import {
   ListItemIcon,
   ListItemText,
   Checkbox,
+  AppBar,
 } from "@mui/material";
 import { Add, Tune } from "@mui/icons-material";
 
@@ -88,33 +89,21 @@ const ListView = () => {
 
   return (
     <>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          padding: 2,
-          paddingTop: 0,
-          paddingBottom: 8,
-        }}
-      >
-        <SearchBar
-          setSearchedVal={setSearchedVal}
-          filterEvents={filterEvents}
-        />
+      <AppBar position="fixed" sx={{ padding: 2 }}>
         <Box
           sx={(theme) => ({
             minWidth: 260,
             width: "100%",
-            paddingBottom: 2,
             [theme.breakpoints.up("sm")]: {
               width: 360,
               marginRight: "auto",
             },
           })}
         >
+          <SearchBar
+            setSearchedVal={setSearchedVal}
+            filterEvents={filterEvents}
+          />
           <Box sx={{ display: "flex" }}>
             <ToggleButton
               value={"Events"}
@@ -229,6 +218,20 @@ const ListView = () => {
             </Menu>
           </Box>
         </Box>
+      </AppBar>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          padding: 2,
+          paddingBottom: 8,
+          position: "relative",
+          marginTop: 15,
+        }}
+      >
         {!loaded ? (
           <Box sx={{ display: "flex", flexGrow: 1, alignItems: "center" }}>
             <CircularProgress />

@@ -1,12 +1,8 @@
 // src/pages/Home.js
 import React from "react";
 import GoogleButton from "react-google-button";
-import { useContext, useState } from "react";
-import {
-  GoogleAuthProvider,
-  signInWithRedirect,
-  signInWithPopup,
-} from "firebase/auth";
+import { useContext } from "react";
+import { GoogleAuthProvider, signInWithRedirect } from "firebase/auth";
 import { AuthContext } from "../contexts/AuthProvider";
 import Box from "@mui/material/Box";
 import {
@@ -21,18 +17,15 @@ import { db } from "../firebase";
 
 const LoginButton = () => {
   // fetch auth object from AuthProvider without prop drilling
-  const { auth, user } = useContext(AuthContext);
-  const [loading, setLoading] = useState(false);
+  const { auth } = useContext(AuthContext);
+
   // TODO: Add backdrop loader for sign in delay
   async function signIn() {
-    setLoading(true);
-    console.log("LOADING");
-    console.log(user);
     // Sign in Firebase using popup auth and Google as the identity provider.
     const provider = new GoogleAuthProvider();
     const userRef = collection(db, "users");
 
-    await signInWithPopup(auth, provider).then(async (cred) => {
+    await signInWithRedirect(auth, provider).then(async (cred) => {
       const q = query(userRef, where("uid", "==", cred.user.uid));
       const querySnapshot = await getDocs(q);
       if (querySnapshot.empty) {
@@ -45,9 +38,6 @@ const LoginButton = () => {
         });
       }
     });
-  }
-  if (user) {
-    return <Box>loadning</Box>;
   }
 
   return (
