@@ -118,14 +118,14 @@ const MapView = () => {
     setAnchorEl(null);
   };
 
-  const layerStyle = {
-    id: "point",
-    type: "circle",
-    paint: {
-      "circle-radius": 10,
-      "circle-color": "#007cbf"
-    },
-  };
+  // const layerStyle = {
+  //   id: "point",
+  //   type: "circle",
+  //   paint: {
+  //     "circle-radius": 5,
+  //     "circle-color": "#007cbf"
+  //   },
+  // };
 
   const layoutLayerText = {
     "text-field": "{point_count_abbreviated}",
@@ -138,17 +138,19 @@ const MapView = () => {
       "step",
       ["get", "point_count"],
       "#51bbd6",
-      100,
+      5,
       "#f1f075",
-      750,
+      10,
       "#f28cb1",
     ],
-    "circle-radius": ["step", ["get", "point_count"], 20, 100, 30, 750, 40],
+    "circle-radius": ["step", ["get", "point_count"], 30, 5, 40, 10, 50],
+    "circle-stroke-width": 1,
+    "circle-stroke-color": "#fff"
   };
 
   const layerUnclusteredPointStyle = {
     "circle-color": "#11b4da",
-    "circle-radius": 4,
+    "circle-radius": 9,
     "circle-stroke-width": 1,
     "circle-stroke-color": "#fff",
   };
@@ -161,8 +163,8 @@ const MapView = () => {
     paint: layerUnclusteredPointStyle
   }
 
-  const onMouseEnter = useCallback(() => setCursor('pointer'), []);
-  const onMouseLeave = useCallback(() => setCursor('auto'), []);
+  const onMouseEnter = () => setCursor('pointer');
+  const onMouseLeave = () => setCursor('auto');
 
   // Loads events and listens for upcoming ones.
   const loadEvents = useCallback(async () => {
@@ -273,7 +275,7 @@ const MapView = () => {
             clusterRadius={50}
             data={geoEvents}
           >
-            <Layer {...layerStyle} />
+            {/* <Layer {...layerStyle} /> */}
             <Layer
               id="clusters"
               type="circle"
