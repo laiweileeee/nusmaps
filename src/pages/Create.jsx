@@ -324,7 +324,7 @@ const Create = ({ event }) => {
               helperText={error ? error.message : null}
             />
           )}
-          rules={{ required: "Capacity is required" }}
+          rules={{ required: "End date and time is required" }}
         />
 
         <Button type="submit" variant="contained">
