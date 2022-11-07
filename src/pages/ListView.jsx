@@ -11,6 +11,7 @@ import {
   ListItemIcon,
   ListItemText,
   Checkbox,
+  AppBar,
 } from "@mui/material";
 import { Add, Tune } from "@mui/icons-material";
 
@@ -88,22 +89,11 @@ const ListView = () => {
 
   return (
     <>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          padding: 2,
-          paddingBottom: 8,
-        }}
-      >
+      <AppBar position="fixed" sx={{ padding: 2 }}>
         <Box
           sx={(theme) => ({
             minWidth: 260,
             width: "100%",
-            paddingBottom: 2,
             [theme.breakpoints.up("sm")]: {
               width: 360,
               marginRight: "auto",
@@ -228,7 +218,20 @@ const ListView = () => {
             </Menu>
           </Box>
         </Box>
-
+      </AppBar>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          padding: 2,
+          paddingBottom: 8,
+          position: "relative",
+          marginTop: 15,
+        }}
+      >
         {!loaded ? (
           <Box sx={{ display: "flex", flexGrow: 1, alignItems: "center" }}>
             <CircularProgress />
