@@ -114,7 +114,21 @@ const Profile = () => {
         style={{ height: "100%" }}
       >
         {value === index && (
-          <Box sx={{ pt: 2, pb: 3, height: "100%" }}>
+          <Box
+            // sx={{ pt: 2, pb: 3, height: "100%" }}
+            sx={(theme) => ({
+              display: "flex",
+              flexDirection: "Column",
+              flexGrow: 1,
+              minWidth: 260,
+              width: "100%",
+              [theme.breakpoints.up("sm")]: {
+                width: 600,
+                marginRight: "auto",
+                marginLeft: "auto",
+              },
+            })}
+          >
             {!loaded ? (
               <Box
                 sx={{
@@ -214,7 +228,20 @@ const Profile = () => {
             </Typography>
           </Stack>
 
-          <Box sx={{ width: "100%" }}>
+          <Box
+            sx={(theme) => ({
+              display: "flex",
+              flexDirection: "Column",
+              flexGrow: 1,
+              minWidth: 260,
+              width: "100%",
+              [theme.breakpoints.up("sm")]: {
+                width: 600,
+                marginRight: "auto",
+                marginLeft: "auto",
+              },
+            })}
+          >
             <Tabs
               value={tabValue}
               onChange={handleTabChange}
@@ -235,7 +262,7 @@ const Profile = () => {
               />
             </Tabs>
 
-            <Box sx={{ display: "flex", marginTop: 2 }}>
+            <Box sx={{ display: "flex", marginTop: 2, marginBottom: 2 }}>
               <ToggleButton
                 value={"Events"}
                 selected={eventsSelected}
