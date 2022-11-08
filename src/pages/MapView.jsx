@@ -182,8 +182,6 @@ const MapView = () => {
     paint: layerUnclusteredPointJoinedStyle
   }
 
-  const joinedEventFilter = ['==', ['isInEvent'], true];
-
   const onMouseEnter = () => setCursor('pointer');
   const onMouseLeave = () => setCursor('auto');
 
@@ -220,13 +218,10 @@ const MapView = () => {
 
   const parseGeoData = (eventsList) => {
     let coordinates = [];
-    console.log(eventsList)
-    console.log(user)
     if (user !== null) {
       eventsList.forEach(async (e) => {
         let participants = await e.data().participants;
         let _isInEvent = false;
-        console.log(participants)
         if (participants !== undefined) {
           participants.forEach((p) => {
             try {
@@ -257,8 +252,6 @@ const MapView = () => {
       };
       setGeoEvents(geojsonMarker);
     }
-    console.log(coordinates)
-
   };
 
   useEffect(() => {
