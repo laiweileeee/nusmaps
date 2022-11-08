@@ -14,13 +14,17 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { db } from "../firebase";
-
+import { CircularProgress } from "@mui/material";
 const LoginButton = () => {
   // fetch auth object from AuthProvider without prop drilling
   const { auth } = useContext(AuthContext);
+  // sessionStorage.setItem("loginLoading", false);
+
+  const loginLoading = sessionStorage.getItem("loginLoading");
 
   // TODO: Add backdrop loader for sign in delay
   async function signIn() {
+    sessionStorage.setItem("loginLoading", "true");
     // Sign in Firebase using popup auth and Google as the identity provider.
     const provider = new GoogleAuthProvider();
     const userRef = collection(db, "users");
@@ -38,6 +42,24 @@ const LoginButton = () => {
         });
       }
     });
+  }
+  console.log(loginLoading);
+  if (loginLoading === "true") {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          flexGrow: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100%",
+        }}
+      >
+        <CircularProgress sx={{ marginBottom: 2 }} />
+        Logging in...
+      </Box>
+    );
   }
 
   return (
