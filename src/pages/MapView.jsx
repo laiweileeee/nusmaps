@@ -17,7 +17,9 @@ import {
   ToggleButton,
   Button,
 } from "@mui/material";
-import { Add, Tune } from "@mui/icons-material";
+import { Add, Tune, Layers } from "@mui/icons-material";
+import Divider from '@mui/material/Divider';
+import MenuList from '@mui/material/MenuList';
 
 import Map, {
   Popup,
@@ -60,7 +62,9 @@ const MapView = () => {
   const [filter, setFilter] = useState("default");
   const [popupInfo, setPopupInfo] = useState();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [layersAnchorEl, setLayersAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const layersOpen = Boolean(layersAnchorEl);
   const [cursor, setCursor] = useState('auto');
 
   const handleMove = useCallback((evt) => {
@@ -77,11 +81,13 @@ const MapView = () => {
         var data = JSON.parse(features[0].properties.data);
         // match data title to event title
         var curEvent = events.find((e) => e.data().title === data.title);
-        // console.log(event);
 
         // get current zoom level, ease map, and center point
         var zoom = mapRef.current.getZoom();
         mapRef.current.easeTo({
+          padding: {
+            bottom: 300
+          },
           center: features[0].geometry.coordinates,
           zoom: zoom,
           duration: 500,
@@ -100,7 +106,7 @@ const MapView = () => {
             }
             mapRef.current.easeTo({
               padding: {
-                bottom: 250
+                bottom: 150
               },
               center: feature.geometry.coordinates,
               zoom,
@@ -116,9 +122,17 @@ const MapView = () => {
     setAnchorEl(event.currentTarget);
   };
 
+  const handleLayersClick = (event) => {
+    setLayersAnchorEl(event.currentTarget);
+  };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const handleLayersClose = () => {
+    setLayersAnchorEl(null);
+  }
 
   // const layerStyle = {
   //   id: "point",
@@ -157,12 +171,27 @@ const MapView = () => {
     "circle-stroke-color": "#fff",
   };
 
+  const layerUnclusteredPointJoinedStyle = {
+    "circle-color": "#fd6363",
+    "circle-radius": 9,
+    "circle-stroke-width": 1,
+    "circle-stroke-color": "#fff",
+  };
+
   const unclusteredPointLayer = {
     id: 'unclustered-point',
     type: 'circle',
     source: 'events',
-    filter: ['!', ['has', 'point_count']],
+    filter: ['all', ['!has', 'point_count'], ['==', 'isInEvent', false]],
     paint: layerUnclusteredPointStyle
+  }
+
+  const unclusteredPointLayerJoined = {
+    id: 'unclustered-point-joined',
+    type: 'circle',
+    source: 'events',
+    filter: ['all', ['!has', 'point_count'], ['==', 'isInEvent', true]],
+    paint: layerUnclusteredPointJoinedStyle
   }
 
   const onMouseEnter = () => setCursor('pointer');
@@ -197,32 +226,68 @@ const MapView = () => {
       setEvents(past);
       parseGeoData(past);
     }
-  }, [eventsSelected, groupsSelected, filter]);
+  }, [user, eventsSelected, groupsSelected, filter]);
 
   const parseGeoData = (eventsList) => {
     let coordinates = [];
-    eventsList.forEach((e) => {
-      coordinates.push({
-        type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [e.data().longitude, e.data().latitude, 0.0],
-        },
-        properties: {
-          data: e.data(),
-        },
+    if (user !== null) {
+      eventsList.forEach(async (e) => {
+        let participants = await e.data().participants;
+        let _isInEvent = false;
+        if (participants === undefined) {
+          participants = [];
+        }
+        participants.forEach((p) => {
+          try {
+            if (p === user.uid) {
+              _isInEvent = true;
+            }
+          } catch (e) {
+            console.log(e)
+          }
+        });
+        coordinates.push({
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: [e.data().longitude, e.data().latitude, 0.0],
+          },
+          properties: {
+            data: e.data(),
+            isInEvent: _isInEvent
+          },
+        });
       });
-    });
-    let geojsonMarker = {
-      type: "FeatureCollection",
-      features: coordinates,
-    };
-    setGeoEvents(geojsonMarker);
+      let geojsonMarker = {
+        type: "FeatureCollection",
+        features: coordinates,
+      };
+      setGeoEvents(geojsonMarker);
+    } else {
+      eventsList.forEach(async (e) => {
+        coordinates.push({
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: [e.data().longitude, e.data().latitude, 0.0],
+          },
+          properties: {
+            data: e.data(),
+            isInEvent: false
+          },
+        });
+      });
+      let geojsonMarker = {
+        type: "FeatureCollection",
+        features: coordinates,
+      };
+      setGeoEvents(geojsonMarker);
+    }
   };
 
   useEffect(() => {
     loadEvents();
-  }, [eventsSelected, groupsSelected, filter, loadEvents]);
+  }, [user, eventsSelected, groupsSelected, filter]);
 
   return (
     <>
@@ -234,7 +299,7 @@ const MapView = () => {
         cursor={cursor}
         mapStyle="mapbox://styles/mapbox/streets-v9"
         mapboxAccessToken={MAPBOX_TOKEN}
-        interactiveLayerIds={["clusters", unclusteredPointLayer.id]}
+        interactiveLayerIds={["clusters", unclusteredPointLayer.id, unclusteredPointLayerJoined.id]}
         onClick={handleMapClick}
         ref={mapRef}
         reuseMaps
@@ -290,7 +355,9 @@ const MapView = () => {
               filter={["has", "point_count"]}
               layout={layoutLayerText}
             />
+            <Layer {...unclusteredPointLayerJoined} />
             <Layer {...unclusteredPointLayer} />
+
             {/* <Layer
               id="unclustered-point"
               type="circle"
@@ -330,6 +397,10 @@ const MapView = () => {
           >
             <BasicCard
               key={popupInfo.data().title}
+              updateData={() => {
+                // func to update data in state
+                loadEvents();
+              }}
               eventUid={popupInfo.id}
               {...popupInfo.data()}
             />
@@ -382,7 +453,53 @@ const MapView = () => {
         >
           Groups
         </ToggleButton>
+        <Button
+          sx={{
+            backgroundColor: "white !important",
+            marginLeft: 0,
+            marginRight: "8px",
+            minWidth: "unset",
+            width: "fit-content",
+            height: 32,
+          }}
+          size="small"
+          variant="contained"
+          onClick={handleLayersClick}
+        >
+          <Layers sx={{ color: "black" }} />
+        </Button>
+        <Menu
+          id="basic-menu"
+          anchorEl={layersAnchorEl}
+          open={layersOpen}
+          onClose={handleLayersClose}
+          PaperProps={{
+            style: {
+              width: "auto",
+              padding: "6px 16px",
+            },
+          }}
+        >
+          <MenuList>
+            <ListItemText>Legend</ListItemText>
+            <Divider />
+            <ListItemText>
+              <div>
+                <span className="legend-dot-unjoined"></span>
+                <span className="legend-text">Events/ groups available to join</span>
+              </div>
+            </ListItemText>
+            <ListItemText>
+              <div>
+                <span className="legend-dot-joined"></span>
+                <span className="legend-text">Events/ groups joined</span>
+              </div>
+            </ListItemText>
 
+
+          </MenuList>
+
+        </Menu>
         <Button
           sx={{
             backgroundColor: "white !important",
@@ -403,66 +520,70 @@ const MapView = () => {
           open={open}
           onClose={handleClose}
         >
-          <MenuItem
-            onClick={() => {
-              if (filter === "upcoming") {
-                setFilter("default");
-              } else if (filter === "default") {
-                setFilter("upcoming");
-              } else {
-                setFilter("ongoing");
-              }
-            }}
-          >
-            <ListItemIcon>
-              <Checkbox
-                edge="start"
-                checked={filter === "default" || filter === "ongoing"}
-                tabIndex={-1}
-                disableRipple
-                inputProps={{ "aria-labelledby": "Ongoing" }}
-              />
-            </ListItemIcon>
-            <ListItemText primary={"Ongoing"} />
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              if (filter === "ongoing") {
-                setFilter("default");
-              } else if (filter === "default") {
-                setFilter("ongoing");
-              } else {
-                setFilter("upcoming");
-              }
-            }}
-          >
-            <ListItemIcon>
-              <Checkbox
-                edge="start"
-                checked={filter === "default" || filter === "upcoming"}
-                tabIndex={-1}
-                disableRipple
-                inputProps={{ "aria-labelledby": "Upcoming" }}
-              />
-            </ListItemIcon>
-            <ListItemText primary={"Upcoming"} />
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              setFilter("past");
-            }}
-          >
-            <ListItemIcon>
-              <Checkbox
-                edge="start"
-                checked={filter === "past"}
-                tabIndex={-1}
-                disableRipple
-                inputProps={{ "aria-labelledby": "Past" }}
-              />
-            </ListItemIcon>
-            <ListItemText primary={"Past"} />
-          </MenuItem>
+          <MenuList>
+            <ListItemText sx={{ padding: "6px 16px" }}>Filter</ListItemText>
+            <Divider />
+            <MenuItem
+              onClick={() => {
+                if (filter === "upcoming") {
+                  setFilter("default");
+                } else if (filter === "default") {
+                  setFilter("upcoming");
+                } else {
+                  setFilter("ongoing");
+                }
+              }}
+            >
+              <ListItemIcon>
+                <Checkbox
+                  edge="start"
+                  checked={filter === "default" || filter === "ongoing"}
+                  tabIndex={-1}
+                  disableRipple
+                  inputProps={{ "aria-labelledby": "Ongoing" }}
+                />
+              </ListItemIcon>
+              <ListItemText primary={"Ongoing"} />
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                if (filter === "ongoing") {
+                  setFilter("default");
+                } else if (filter === "default") {
+                  setFilter("ongoing");
+                } else {
+                  setFilter("upcoming");
+                }
+              }}
+            >
+              <ListItemIcon>
+                <Checkbox
+                  edge="start"
+                  checked={filter === "default" || filter === "upcoming"}
+                  tabIndex={-1}
+                  disableRipple
+                  inputProps={{ "aria-labelledby": "Upcoming" }}
+                />
+              </ListItemIcon>
+              <ListItemText primary={"Upcoming"} />
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                setFilter("past");
+              }}
+            >
+              <ListItemIcon>
+                <Checkbox
+                  edge="start"
+                  checked={filter === "past"}
+                  tabIndex={-1}
+                  disableRipple
+                  inputProps={{ "aria-labelledby": "Past" }}
+                />
+              </ListItemIcon>
+              <ListItemText primary={"Past"} />
+            </MenuItem>
+          </MenuList>
         </Menu>
       </Box>
 
