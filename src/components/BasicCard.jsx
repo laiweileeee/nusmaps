@@ -195,7 +195,7 @@ const BasicCard = ({
         </Typography>
         <Typography
           noWrap
-          sx={{ fontSize: "medium", maxWidth: 200, mb: 2 }}
+          sx={{ fontSize: "medium", mb: 2 }}
           color="text.secondary"
         >
           by {creatorName || "Creator"}
