@@ -218,7 +218,6 @@ const MapView = () => {
 
   const parseGeoData = (eventsList) => {
     let coordinates = [];
-    console.log(user);
     if (user !== null) {
       eventsList.forEach(async (e) => {
         let participants = await e.data().participants;
@@ -245,7 +244,6 @@ const MapView = () => {
             },
           });
         }
-        console.log("coordinates: ", coordinates)
       });
       let geojsonMarker = {
         type: "FeatureCollection",
