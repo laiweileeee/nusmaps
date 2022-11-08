@@ -232,7 +232,9 @@ const MapView = () => {
     let coordinates = [];
     if (user !== null) {
       eventsList.forEach(async (e) => {
-        let participants = await e.data().participants;
+        let _data = await e.data();
+        let participants = _data.participants;
+        let eventOwner = _data.creatorId;
         let _isInEvent = false;
         if (participants === undefined) {
           participants = [];
@@ -246,6 +248,11 @@ const MapView = () => {
             console.log(e)
           }
         });
+
+        if (eventOwner === user.uid) {
+          _isInEvent = true;
+        }
+
         coordinates.push({
           type: "Feature",
           geometry: {
