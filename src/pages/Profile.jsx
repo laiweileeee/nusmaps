@@ -132,6 +132,8 @@ const Profile = () => {
                 sx={{
                   display: "flex",
                   flexDirection: "Column",
+                  alignItem: "center",
+                  justifyContent: "center",
                   flexGrow: 1,
                 }}
               >
@@ -145,7 +147,11 @@ const Profile = () => {
                     />
                   ))
                 ) : (
-                  <Typography variant="h6" component="div">
+                  <Typography
+                    variant="h6"
+                    component="div"
+                    sx={{ textAlign: "center", paddingTop: 3 }}
+                  >
                     {(eventsSelected && groupsSelected) ||
                     (!eventsSelected && !groupsSelected)
                       ? "No events or groups found."
