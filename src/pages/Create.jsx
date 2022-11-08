@@ -47,6 +47,7 @@ const Create = ({ event }) => {
   const navigate = useNavigate();
   const [showTooltip, setShowTooltip] = useState(false);
   const [displayMap, setDisplayMap] = useState(false);
+  const [editHeader, setEditHeader] = useState("Event");
 
   const onSubmit = async (data) => {
     // Add a new document in collection "events"
@@ -103,22 +104,27 @@ const Create = ({ event }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Box
-        sx={{
+        sx={(theme) => ({
           "& .MuiTextField-root": { mb: 2, width: "100%" },
-          flexGrow: 1,
+          flex: 1,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           minWidth: 260,
           padding: 2,
           paddingBottom: 10,
-        }}
+          [theme.breakpoints.up("sm")]: {
+            width: 600,
+            marginRight: "auto",
+            marginLeft: "auto",
+          },
+        })}
       >
         <Typography
           variant="h5"
           sx={{ paddingTop: 2, paddingBottom: 1, alignSelf: "flex-start" }}
         >
-          {event ? "Edit" : "Create New"} Event
+          {event ? "Edit" : "Create New"} {editHeader}
         </Typography>
 
         <Controller
@@ -129,9 +135,13 @@ const Create = ({ event }) => {
             <ToggleButtonGroup
               value={value}
               exclusive
-              onChange={(value) => {
-                onChange(value);
+              onChange={(evt, val) => {
+                if (val !== null) {
+                  setEditHeader(val);
+                  onChange(val);
+                }
               }}
+              defaultValue="Event"
               fullWidth
               sx={{ marginBottom: 2 }}
               size="small"
@@ -328,7 +338,7 @@ const Create = ({ event }) => {
         />
 
         <Button type="submit" variant="contained">
-          {event ? "Edit" : "Create"} Event
+          {event ? "Edit" : "Create"} {editHeader}
         </Button>
       </Box>
 
