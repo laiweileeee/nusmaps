@@ -182,6 +182,8 @@ const MapView = () => {
     paint: layerUnclusteredPointJoinedStyle
   }
 
+  const joinedEventFilter = ['==', ['isInEvent'], true];
+
   const onMouseEnter = () => setCursor('pointer');
   const onMouseLeave = () => setCursor('auto');
 
@@ -218,26 +220,36 @@ const MapView = () => {
 
   const parseGeoData = (eventsList) => {
     let coordinates = [];
+    console.log(eventsList)
+    console.log(user)
     if (user !== null) {
-      eventsList.forEach((e) => {
-        let participants = e.data().participants;
+      eventsList.forEach(async (e) => {
+        let participants = await e.data().participants;
         let _isInEvent = false;
-        participants.forEach((p) => {
-          if (p === user.uid) {
-            _isInEvent = true;
-          }
-        });
-        coordinates.push({
-          type: "Feature",
-          geometry: {
-            type: "Point",
-            coordinates: [e.data().longitude, e.data().latitude, 0.0],
-          },
-          properties: {
-            data: e.data(),
-            isInEvent: _isInEvent
-          },
-        });
+        console.log(participants)
+        if (participants !== undefined) {
+          participants.forEach((p) => {
+            try {
+              if (p === user.uid) {
+                _isInEvent = true;
+              }
+            } catch (e) {
+              console.log(e)
+            }
+          });
+          coordinates.push({
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [e.data().longitude, e.data().latitude, 0.0],
+            },
+            properties: {
+              data: e.data(),
+              isInEvent: _isInEvent
+            },
+          });
+        }
+
       });
       let geojsonMarker = {
         type: "FeatureCollection",
@@ -245,12 +257,15 @@ const MapView = () => {
       };
       setGeoEvents(geojsonMarker);
     }
+    console.log(coordinates)
 
   };
 
   useEffect(() => {
-    loadEvents();
-  }, [eventsSelected, groupsSelected, filter, loadEvents]);
+    if (user) {
+      loadEvents();
+    }
+  }, [user, eventsSelected, groupsSelected, filter]);
 
   return (
     <>
