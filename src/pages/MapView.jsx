@@ -20,7 +20,6 @@ import {
 import { Add, Tune } from "@mui/icons-material";
 
 import Map, {
-  Marker,
   Popup,
   GeolocateControl,
   NavigationControl,
@@ -41,7 +40,7 @@ import { getOngoing, getUpcoming, getPast } from "../api/API";
 const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN;
 
 const MapView = () => {
-  const mapRef = useRef();
+  const mapRef = React.useRef();
   const geolocateControlRef = useRef();
   const [currentLocationLoaded, setCurrentLocationLoaded] = useState();
 
@@ -62,28 +61,54 @@ const MapView = () => {
   const [popupInfo, setPopupInfo] = useState();
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const [cursor, setCursor] = useState('auto');
 
   const handleMove = useCallback((evt) => {
     setViewState(evt.viewState);
   }, []);
 
+
   const handleMapClick = (event) => {
-    if (event !== null && event.features[0] !== undefined) {
-      const feature = event.features[0];
-      const clusterId = feature.properties.cluster_id;
-      const mapboxSource = mapRef.current.getSource("geoData");
+    setPopupInfo(null);
 
-      mapboxSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
-        if (err) {
-          return;
-        }
+    const features = event.features || [];
+    if (features.length > 0) {
+      if (features[0].layer.id !== "clusters") { // if point is not a cluster, show popup
+        var data = JSON.parse(features[0].properties.data);
+        // match data title to event title
+        var curEvent = events.find((e) => e.data().title === data.title);
+        // console.log(event);
 
+        // get current zoom level, ease map, and center point
+        var zoom = mapRef.current.getZoom();
         mapRef.current.easeTo({
-          center: feature.geometry.coordinates,
-          zoom,
+          center: features[0].geometry.coordinates,
+          zoom: zoom,
           duration: 500,
         });
-      });
+
+        setPopupInfo(curEvent);
+      } else {
+        if (event !== null && event.features[0] !== undefined) {
+          const feature = event.features[0];
+          const clusterId = feature.properties.cluster_id;
+          const mapboxSource = mapRef.current.getSource('geoData');
+
+          mapboxSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
+            if (err) {
+              return;
+            }
+            mapRef.current.easeTo({
+              padding: {
+                bottom: 250
+              },
+              center: feature.geometry.coordinates,
+              zoom,
+              duration: 500
+            });
+          });
+        }
+      }
     }
   };
 
@@ -95,14 +120,14 @@ const MapView = () => {
     setAnchorEl(null);
   };
 
-  const layerStyle = {
-    id: "point",
-    type: "circle",
-    paint: {
-      "circle-radius": 10,
-      "circle-color": "#007cbf",
-    },
-  };
+  // const layerStyle = {
+  //   id: "point",
+  //   type: "circle",
+  //   paint: {
+  //     "circle-radius": 5,
+  //     "circle-color": "#007cbf"
+  //   },
+  // };
 
   const layoutLayerText = {
     "text-field": "{point_count_abbreviated}",
@@ -115,20 +140,33 @@ const MapView = () => {
       "step",
       ["get", "point_count"],
       "#51bbd6",
-      100,
+      5,
       "#f1f075",
-      750,
+      10,
       "#f28cb1",
     ],
-    "circle-radius": ["step", ["get", "point_count"], 20, 100, 30, 750, 40],
+    "circle-radius": ["step", ["get", "point_count"], 30, 5, 40, 10, 50],
+    "circle-stroke-width": 1,
+    "circle-stroke-color": "#fff"
   };
 
   const layerUnclusteredPointStyle = {
     "circle-color": "#11b4da",
-    "circle-radius": 4,
+    "circle-radius": 9,
     "circle-stroke-width": 1,
     "circle-stroke-color": "#fff",
   };
+
+  const unclusteredPointLayer = {
+    id: 'unclustered-point',
+    type: 'circle',
+    source: 'events',
+    filter: ['!', ['has', 'point_count']],
+    paint: layerUnclusteredPointStyle
+  }
+
+  const onMouseEnter = () => setCursor('pointer');
+  const onMouseLeave = () => setCursor('auto');
 
   // Loads events and listens for upcoming ones.
   const loadEvents = useCallback(async () => {
@@ -191,9 +229,12 @@ const MapView = () => {
       <Map
         {...viewState}
         onMove={handleMove}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+        cursor={cursor}
         mapStyle="mapbox://styles/mapbox/streets-v9"
         mapboxAccessToken={MAPBOX_TOKEN}
-        interactiveLayerIds={["clusters"]}
+        interactiveLayerIds={["clusters", unclusteredPointLayer.id]}
         onClick={handleMapClick}
         ref={mapRef}
         reuseMaps
@@ -236,7 +277,7 @@ const MapView = () => {
             clusterRadius={50}
             data={geoEvents}
           >
-            <Layer {...layerStyle} />
+            {/* <Layer {...layerStyle} /> */}
             <Layer
               id="clusters"
               type="circle"
@@ -249,39 +290,43 @@ const MapView = () => {
               filter={["has", "point_count"]}
               layout={layoutLayerText}
             />
-            <Layer
+            <Layer {...unclusteredPointLayer} />
+            {/* <Layer
               id="unclustered-point"
               type="circle"
               filter={["!", ["has", "point_count"]]}
               paint={layerUnclusteredPointStyle}
-            />
+            /> */}
           </Source>
         )}
-        {events
+        {/* {events
           ? events.map((event) => (
-              <Marker
-                key={event.data().title}
-                longitude={event.data().longitude}
-                latitude={event.data().latitude}
-                style={{ cursor: "pointer" }}
-                onClick={(e) => {
-                  e.originalEvent.stopPropagation();
-                  setPopupInfo(event);
-                  mapRef.current.flyTo({
-                    center: e.target.getLngLat(),
-                  });
-                }}
-              />
-            ))
-          : null}
+            <Marker
+              key={event.data().title}
+              longitude={event.data().longitude}
+              latitude={event.data().latitude}
+              // style={{ cursor: "pointer" }}
+              style={{
+                display: "none"
+              }}
+              onClick={(e) => {
+                e.originalEvent.stopPropagation();
+                setPopupInfo(event);
+                mapRef.current.flyTo({
+                  center: e.target.getLngLat(),
+                });
+              }}
+            />
+          ))
+          : null} */}
 
         {popupInfo ? (
           <Popup
             anchor="top"
             closeButton={false}
+            closeOnClick={false}
             longitude={popupInfo.data().longitude}
             latitude={popupInfo.data().latitude}
-            onClose={() => setPopupInfo(null)}
           >
             <BasicCard
               key={popupInfo.data().title}
