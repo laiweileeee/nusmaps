@@ -93,10 +93,10 @@ const ListView = () => {
         <Box
           sx={(theme) => ({
             minWidth: 260,
-            width: "100%",
             [theme.breakpoints.up("sm")]: {
-              width: 360,
+              width: 600,
               marginRight: "auto",
+              marginLeft: "auto",
             },
           })}
         >
@@ -238,13 +238,25 @@ const ListView = () => {
           </Box>
         ) : (
           <Box
-            sx={{
+            sx={(theme) => ({
               display: "flex",
               flexDirection: "Column",
               flexGrow: 1,
               minWidth: 260,
               width: "100%",
-            }}
+              [theme.breakpoints.up("sm")]: {
+                width: 600,
+                marginRight: "auto",
+                marginLeft: "auto",
+              },
+            })}
+            // sx={{
+            //   display: "flex",
+            //   flexDirection: "Column",
+            //   flexGrow: 1,
+            //   minWidth: 260,
+            //   width: "100%",
+            // }}
           >
             {events.length > 0 ? (
               events
