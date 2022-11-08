@@ -218,6 +218,7 @@ const MapView = () => {
 
   const parseGeoData = (eventsList) => {
     let coordinates = [];
+    console.log(user);
     if (user !== null) {
       eventsList.forEach(async (e) => {
         let participants = await e.data().participants;
@@ -244,7 +245,26 @@ const MapView = () => {
             },
           });
         }
-
+        console.log("coordinates: ", coordinates)
+      });
+      let geojsonMarker = {
+        type: "FeatureCollection",
+        features: coordinates,
+      };
+      setGeoEvents(geojsonMarker);
+    } else {
+      eventsList.forEach(async (e) => {
+        coordinates.push({
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: [e.data().longitude, e.data().latitude, 0.0],
+          },
+          properties: {
+            data: e.data(),
+            isInEvent: false
+          },
+        });
       });
       let geojsonMarker = {
         type: "FeatureCollection",
@@ -255,9 +275,7 @@ const MapView = () => {
   };
 
   useEffect(() => {
-    if (user) {
-      loadEvents();
-    }
+    loadEvents();
   }, [user, eventsSelected, groupsSelected, filter]);
 
   return (
@@ -270,7 +288,7 @@ const MapView = () => {
         cursor={cursor}
         mapStyle="mapbox://styles/mapbox/streets-v9"
         mapboxAccessToken={MAPBOX_TOKEN}
-        interactiveLayerIds={["clusters", unclusteredPointLayer.id, "clusters", unclusteredPointLayerJoined.id]}
+        interactiveLayerIds={["clusters", unclusteredPointLayer.id, unclusteredPointLayerJoined.id]}
         onClick={handleMapClick}
         ref={mapRef}
         reuseMaps
