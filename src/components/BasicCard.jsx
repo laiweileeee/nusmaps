@@ -68,15 +68,15 @@ const BasicCard = ({
   participants = [],
   eventUid,
   updateData,
-  loadEvents
+  loadEvents,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const { currentLocation } = useContext(LocationContext);
   const [currentParticipants, setCurrentParticipants] = useState(participants);
   const distanceFromUser = currentLocation
     ? (
-      new LngLat(longitude, latitude).distanceTo(currentLocation) / 1000
-    ).toFixed(2)
+        new LngLat(longitude, latitude).distanceTo(currentLocation) / 1000
+      ).toFixed(2)
     : "XX";
   const { user, signIn } = useContext(AuthContext);
 
@@ -214,8 +214,8 @@ const BasicCard = ({
               {startDateTime || endDateTime
                 ? `${moment(startDateTime.toDate()).format("D MMM YY, h:mma")}
                      - ${moment(endDateTime.toDate()).format(
-                  "D MMM YY, h:mma"
-                )}`
+                       "D MMM YY, h:mma"
+                     )}`
                 : "time - time"}
             </Typography>
             <Typography
@@ -262,41 +262,44 @@ const BasicCard = ({
                 justifyContent: "space-between",
               }}
             >
-              {!user ? (
-                <Button
-                  disabled={!hasCapacityToJoin()}
-                  onClick={() => {
-                    signIn();
-                  }}
-                  variant="outlined"
-                >
-                  {hasCapacityToJoin() ? "Login to Join" : "Full"}
-                </Button>
-              ) : user.uid !== creatorId && endDateTime > Timestamp.now() ? ( // can only join if not creator
-
-                !hasJoined() ? (
+              {endDateTime > Timestamp.now() ? (
+                !user ? (
                   <Button
+                    disabled={!hasCapacityToJoin()}
                     onClick={() => {
-                      doJoin();
-                    }}
-                    variant="contained"
-                    disabled={!canJoin()}
-                  >
-                    {hasCapacityToJoin()
-                      ? type === "Event"
-                        ? "Join Event"
-                        : "Join Group"
-                      : "Full"}
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={() => {
-                      doLeave();
+                      signIn();
                     }}
                     variant="outlined"
                   >
-                    {type === "Event" ? "Leave Event" : "Leave Group"}
+                    {hasCapacityToJoin() ? "Login to Join" : "Full"}
                   </Button>
+                ) : user && user.uid !== creatorId ? ( // can only join if not creator
+                  !hasJoined() ? (
+                    <Button
+                      onClick={() => {
+                        doJoin();
+                      }}
+                      variant="contained"
+                      disabled={!canJoin()}
+                    >
+                      {hasCapacityToJoin()
+                        ? type === "Event"
+                          ? "Join Event"
+                          : "Join Group"
+                        : "Full"}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => {
+                        doLeave();
+                      }}
+                      variant="outlined"
+                    >
+                      {type === "Event" ? "Leave Event" : "Leave Group"}
+                    </Button>
+                  )
+                ) : (
+                  <></>
                 )
               ) : (
                 <></>
