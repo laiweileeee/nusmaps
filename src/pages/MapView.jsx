@@ -222,28 +222,29 @@ const MapView = () => {
       eventsList.forEach(async (e) => {
         let participants = await e.data().participants;
         let _isInEvent = false;
-        if (participants !== undefined) {
-          participants.forEach((p) => {
-            try {
-              if (p === user.uid) {
-                _isInEvent = true;
-              }
-            } catch (e) {
-              console.log(e)
-            }
-          });
-          coordinates.push({
-            type: "Feature",
-            geometry: {
-              type: "Point",
-              coordinates: [e.data().longitude, e.data().latitude, 0.0],
-            },
-            properties: {
-              data: e.data(),
-              isInEvent: _isInEvent
-            },
-          });
+        if (participants === undefined) {
+          participants = [];
         }
+        participants.forEach((p) => {
+          try {
+            if (p === user.uid) {
+              _isInEvent = true;
+            }
+          } catch (e) {
+            console.log(e)
+          }
+        });
+        coordinates.push({
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: [e.data().longitude, e.data().latitude, 0.0],
+          },
+          properties: {
+            data: e.data(),
+            isInEvent: _isInEvent
+          },
+        });
       });
       let geojsonMarker = {
         type: "FeatureCollection",
