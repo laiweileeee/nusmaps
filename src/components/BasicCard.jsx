@@ -78,7 +78,7 @@ const BasicCard = ({
       new LngLat(longitude, latitude).distanceTo(currentLocation) / 1000
     ).toFixed(2)
     : "XX";
-  const { user } = useContext(AuthContext);
+  const { user, signIn } = useContext(AuthContext);
 
   const navigate = useNavigate();
   const match = useMatch("/profile");
@@ -262,9 +262,18 @@ const BasicCard = ({
                 justifyContent: "space-between",
               }}
             >
-              {user &&
-                user.uid !== creatorId &&
-                endDateTime > Timestamp.now() ? ( // can only join if not creator
+              {!user ? (
+                <Button
+                  disabled={!hasCapacityToJoin()}
+                  onClick={() => {
+                    signIn();
+                  }}
+                  variant="outlined"
+                >
+                  {hasCapacityToJoin() ? "Login to Join" : "Full"}
+                </Button>
+              ) : user.uid !== creatorId && endDateTime > Timestamp.now() ? ( // can only join if not creator
+
                 !hasJoined() ? (
                   <Button
                     onClick={() => {
