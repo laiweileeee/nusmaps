@@ -17,33 +17,13 @@ import { db } from "../firebase";
 import { CircularProgress } from "@mui/material";
 const LoginButton = () => {
   // fetch auth object from AuthProvider without prop drilling
-  const { auth } = useContext(AuthContext);
+  const { signIn } = useContext(AuthContext);
   // sessionStorage.setItem("loginLoading", false);
 
   const loginLoading = sessionStorage.getItem("loginLoading");
 
   // TODO: Add backdrop loader for sign in delay
-  async function signIn() {
-    sessionStorage.setItem("loginLoading", "true");
-    // Sign in Firebase using popup auth and Google as the identity provider.
-    const provider = new GoogleAuthProvider();
-    const userRef = collection(db, "users");
 
-    await signInWithRedirect(auth, provider).then(async (cred) => {
-      const q = query(userRef, where("uid", "==", cred.user.uid));
-      const querySnapshot = await getDocs(q);
-      if (querySnapshot.empty) {
-        await setDoc(doc(db, "users", cred.user.uid), {
-          uid: cred.user.uid,
-          displayName: cred.user.displayName,
-          photoURL: cred.user.photoURL,
-          email: cred.user.email,
-          bio: "",
-        });
-      }
-    });
-  }
-  console.log(loginLoading);
   if (loginLoading === "true") {
     return (
       <Box
