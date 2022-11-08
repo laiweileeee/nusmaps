@@ -111,7 +111,7 @@ const Profile = () => {
         id={`simple-tabpanel-${index}`}
         aria-labelledby={`simple-tab-${index}`}
         {...other}
-        style={{ height: "100%" }}
+        style={{ height: "100%", paddingBottom: 24 }}
       >
         {value === index && (
           <Box
@@ -161,11 +161,11 @@ const Profile = () => {
                 ) : (
                   <Typography variant="h6" component="div">
                     {(eventsSelected && groupsSelected) ||
-                      (!eventsSelected && !groupsSelected)
+                    (!eventsSelected && !groupsSelected)
                       ? "No events or groups found."
                       : eventsSelected
-                        ? "No events found."
-                        : "No groups found."}
+                      ? "No events found."
+                      : "No groups found."}
                   </Typography>
                 )}
               </Box>

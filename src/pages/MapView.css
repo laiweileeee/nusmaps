@@ -13,6 +13,7 @@
   box-shadow: unset;
   padding: unset;
   width: fit-content;
+  max-width: 100%;
 }
 
 .mapboxgl-ctrl-top-left {
