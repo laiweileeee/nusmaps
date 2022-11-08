@@ -8,6 +8,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     auth.onAuthStateChanged(setUser);
+    sessionStorage.setItem("loginLoading", "false");
   }, []);
 
   return (
