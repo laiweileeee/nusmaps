@@ -67,7 +67,8 @@ const BasicCard = ({
   capacity,
   participants = [],
   eventUid,
-  updateData
+  updateData,
+  loadEvents
 }) => {
   const [expanded, setExpanded] = useState(false);
   const { currentLocation } = useContext(LocationContext);
@@ -149,6 +150,7 @@ const BasicCard = ({
 
   const handleDelete = async () => {
     await deleteDoc(doc(db, "events", eventUid));
+    loadEvents();
   };
 
   return (
