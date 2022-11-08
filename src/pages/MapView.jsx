@@ -17,7 +17,9 @@ import {
   ToggleButton,
   Button,
 } from "@mui/material";
-import { Add, Tune } from "@mui/icons-material";
+import { Add, Tune, Layers } from "@mui/icons-material";
+import Divider from '@mui/material/Divider';
+import MenuList from '@mui/material/MenuList';
 
 import Map, {
   Popup,
@@ -60,7 +62,9 @@ const MapView = () => {
   const [filter, setFilter] = useState("default");
   const [popupInfo, setPopupInfo] = useState();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [layersAnchorEl, setLayersAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const layersOpen = Boolean(layersAnchorEl);
   const [cursor, setCursor] = useState('auto');
 
   const handleMove = useCallback((evt) => {
@@ -118,9 +122,17 @@ const MapView = () => {
     setAnchorEl(event.currentTarget);
   };
 
+  const handleLayersClick = (event) => {
+    setLayersAnchorEl(event.currentTarget);
+  };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const handleLayersClose = () => {
+    setLayersAnchorEl(null);
+  }
 
   // const layerStyle = {
   //   id: "point",
@@ -441,7 +453,53 @@ const MapView = () => {
         >
           Groups
         </ToggleButton>
+        <Button
+          sx={{
+            backgroundColor: "white !important",
+            marginLeft: 0,
+            marginRight: "8px",
+            minWidth: "unset",
+            width: "fit-content",
+            height: 32,
+          }}
+          size="small"
+          variant="contained"
+          onClick={handleLayersClick}
+        >
+          <Layers sx={{ color: "black" }} />
+        </Button>
+        <Menu
+          id="basic-menu"
+          anchorEl={layersAnchorEl}
+          open={layersOpen}
+          onClose={handleLayersClose}
+          PaperProps={{
+            style: {
+              width: "auto",
+              padding: "6px 16px",
+            },
+          }}
+        >
+          <MenuList>
+            <ListItemText>Legend</ListItemText>
+            <Divider />
+            <ListItemText>
+              <div>
+                <span className="legend-dot-unjoined"></span>
+                <span className="legend-text">Events/ groups available to join</span>
+              </div>
+            </ListItemText>
+            <ListItemText>
+              <div>
+                <span className="legend-dot-joined"></span>
+                <span className="legend-text">Events/ groups joined</span>
+              </div>
+            </ListItemText>
 
+
+          </MenuList>
+
+        </Menu>
         <Button
           sx={{
             backgroundColor: "white !important",
@@ -462,66 +520,70 @@ const MapView = () => {
           open={open}
           onClose={handleClose}
         >
-          <MenuItem
-            onClick={() => {
-              if (filter === "upcoming") {
-                setFilter("default");
-              } else if (filter === "default") {
-                setFilter("upcoming");
-              } else {
-                setFilter("ongoing");
-              }
-            }}
-          >
-            <ListItemIcon>
-              <Checkbox
-                edge="start"
-                checked={filter === "default" || filter === "ongoing"}
-                tabIndex={-1}
-                disableRipple
-                inputProps={{ "aria-labelledby": "Ongoing" }}
-              />
-            </ListItemIcon>
-            <ListItemText primary={"Ongoing"} />
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              if (filter === "ongoing") {
-                setFilter("default");
-              } else if (filter === "default") {
-                setFilter("ongoing");
-              } else {
-                setFilter("upcoming");
-              }
-            }}
-          >
-            <ListItemIcon>
-              <Checkbox
-                edge="start"
-                checked={filter === "default" || filter === "upcoming"}
-                tabIndex={-1}
-                disableRipple
-                inputProps={{ "aria-labelledby": "Upcoming" }}
-              />
-            </ListItemIcon>
-            <ListItemText primary={"Upcoming"} />
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              setFilter("past");
-            }}
-          >
-            <ListItemIcon>
-              <Checkbox
-                edge="start"
-                checked={filter === "past"}
-                tabIndex={-1}
-                disableRipple
-                inputProps={{ "aria-labelledby": "Past" }}
-              />
-            </ListItemIcon>
-            <ListItemText primary={"Past"} />
-          </MenuItem>
+          <MenuList>
+            <ListItemText sx={{ padding: "6px 16px" }}>Filter</ListItemText>
+            <Divider />
+            <MenuItem
+              onClick={() => {
+                if (filter === "upcoming") {
+                  setFilter("default");
+                } else if (filter === "default") {
+                  setFilter("upcoming");
+                } else {
+                  setFilter("ongoing");
+                }
+              }}
+            >
+              <ListItemIcon>
+                <Checkbox
+                  edge="start"
+                  checked={filter === "default" || filter === "ongoing"}
+                  tabIndex={-1}
+                  disableRipple
+                  inputProps={{ "aria-labelledby": "Ongoing" }}
+                />
+              </ListItemIcon>
+              <ListItemText primary={"Ongoing"} />
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                if (filter === "ongoing") {
+                  setFilter("default");
+                } else if (filter === "default") {
+                  setFilter("ongoing");
+                } else {
+                  setFilter("upcoming");
+                }
+              }}
+            >
+              <ListItemIcon>
+                <Checkbox
+                  edge="start"
+                  checked={filter === "default" || filter === "upcoming"}
+                  tabIndex={-1}
+                  disableRipple
+                  inputProps={{ "aria-labelledby": "Upcoming" }}
+                />
+              </ListItemIcon>
+              <ListItemText primary={"Upcoming"} />
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                setFilter("past");
+              }}
+            >
+              <ListItemIcon>
+                <Checkbox
+                  edge="start"
+                  checked={filter === "past"}
+                  tabIndex={-1}
+                  disableRipple
+                  inputProps={{ "aria-labelledby": "Past" }}
+                />
+              </ListItemIcon>
+              <ListItemText primary={"Past"} />
+            </MenuItem>
+          </MenuList>
         </Menu>
       </Box>
 

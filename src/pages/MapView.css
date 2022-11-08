@@ -28,6 +28,33 @@
   margin-top: 70px;
 }
 
+.legend-dot-joined {
+  height: 17px;
+  width: 17px;
+  background-color: #fd6363;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 9px;
+  border: 1px solid white;
+}
+
+.legend-dot-unjoined {
+  height: 17px;
+  width: 17px;
+  background-color: #11b4da;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 9px;
+  border: 1px solid white;
+}
+
+.legend-text,
+.legend-dot-joined,
+.legend-dot-unjoined {
+  line-height: 17px;
+  vertical-align: middle;
+}
+
 @media screen and (min-width: 640px) {
   .mapboxgl-ctrl-geocoder.mapboxgl-ctrl {
     width: 360px;
