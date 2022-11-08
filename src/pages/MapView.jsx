@@ -182,8 +182,6 @@ const MapView = () => {
     paint: layerUnclusteredPointJoinedStyle
   }
 
-  const joinedEventFilter = ['==', ['isInEvent'], true];
-
   const onMouseEnter = () => setCursor('pointer');
   const onMouseLeave = () => setCursor('auto');
 
