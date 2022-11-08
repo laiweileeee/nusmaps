@@ -77,11 +77,13 @@ const MapView = () => {
         var data = JSON.parse(features[0].properties.data);
         // match data title to event title
         var curEvent = events.find((e) => e.data().title === data.title);
-        // console.log(event);
 
         // get current zoom level, ease map, and center point
         var zoom = mapRef.current.getZoom();
         mapRef.current.easeTo({
+          padding: {
+            bottom: 300
+          },
           center: features[0].geometry.coordinates,
           zoom: zoom,
           duration: 500,
@@ -100,7 +102,7 @@ const MapView = () => {
             }
             mapRef.current.easeTo({
               padding: {
-                bottom: 250
+                bottom: 150
               },
               center: feature.geometry.coordinates,
               zoom,
@@ -157,12 +159,27 @@ const MapView = () => {
     "circle-stroke-color": "#fff",
   };
 
+  const layerUnclusteredPointJoinedStyle = {
+    "circle-color": "#fd6363",
+    "circle-radius": 9,
+    "circle-stroke-width": 1,
+    "circle-stroke-color": "#fff",
+  };
+
   const unclusteredPointLayer = {
     id: 'unclustered-point',
     type: 'circle',
     source: 'events',
-    filter: ['!', ['has', 'point_count']],
+    filter: ['all', ['!has', 'point_count'], ['==', 'isInEvent', false]],
     paint: layerUnclusteredPointStyle
+  }
+
+  const unclusteredPointLayerJoined = {
+    id: 'unclustered-point-joined',
+    type: 'circle',
+    source: 'events',
+    filter: ['all', ['!has', 'point_count'], ['==', 'isInEvent', true]],
+    paint: layerUnclusteredPointJoinedStyle
   }
 
   const onMouseEnter = () => setCursor('pointer');
@@ -197,32 +214,68 @@ const MapView = () => {
       setEvents(past);
       parseGeoData(past);
     }
-  }, [eventsSelected, groupsSelected, filter]);
+  }, [user, eventsSelected, groupsSelected, filter]);
 
   const parseGeoData = (eventsList) => {
     let coordinates = [];
-    eventsList.forEach((e) => {
-      coordinates.push({
-        type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [e.data().longitude, e.data().latitude, 0.0],
-        },
-        properties: {
-          data: e.data(),
-        },
+    if (user !== null) {
+      eventsList.forEach(async (e) => {
+        let participants = await e.data().participants;
+        let _isInEvent = false;
+        if (participants === undefined) {
+          participants = [];
+        }
+        participants.forEach((p) => {
+          try {
+            if (p === user.uid) {
+              _isInEvent = true;
+            }
+          } catch (e) {
+            console.log(e)
+          }
+        });
+        coordinates.push({
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: [e.data().longitude, e.data().latitude, 0.0],
+          },
+          properties: {
+            data: e.data(),
+            isInEvent: _isInEvent
+          },
+        });
       });
-    });
-    let geojsonMarker = {
-      type: "FeatureCollection",
-      features: coordinates,
-    };
-    setGeoEvents(geojsonMarker);
+      let geojsonMarker = {
+        type: "FeatureCollection",
+        features: coordinates,
+      };
+      setGeoEvents(geojsonMarker);
+    } else {
+      eventsList.forEach(async (e) => {
+        coordinates.push({
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: [e.data().longitude, e.data().latitude, 0.0],
+          },
+          properties: {
+            data: e.data(),
+            isInEvent: false
+          },
+        });
+      });
+      let geojsonMarker = {
+        type: "FeatureCollection",
+        features: coordinates,
+      };
+      setGeoEvents(geojsonMarker);
+    }
   };
 
   useEffect(() => {
     loadEvents();
-  }, [eventsSelected, groupsSelected, filter, loadEvents]);
+  }, [user, eventsSelected, groupsSelected, filter]);
 
   return (
     <>
@@ -234,7 +287,7 @@ const MapView = () => {
         cursor={cursor}
         mapStyle="mapbox://styles/mapbox/streets-v9"
         mapboxAccessToken={MAPBOX_TOKEN}
-        interactiveLayerIds={["clusters", unclusteredPointLayer.id]}
+        interactiveLayerIds={["clusters", unclusteredPointLayer.id, unclusteredPointLayerJoined.id]}
         onClick={handleMapClick}
         ref={mapRef}
         reuseMaps
@@ -290,7 +343,9 @@ const MapView = () => {
               filter={["has", "point_count"]}
               layout={layoutLayerText}
             />
+            <Layer {...unclusteredPointLayerJoined} />
             <Layer {...unclusteredPointLayer} />
+
             {/* <Layer
               id="unclustered-point"
               type="circle"
@@ -330,6 +385,10 @@ const MapView = () => {
           >
             <BasicCard
               key={popupInfo.data().title}
+              updateData={() => {
+                // func to update data in state
+                loadEvents();
+              }}
               eventUid={popupInfo.id}
               {...popupInfo.data()}
             />

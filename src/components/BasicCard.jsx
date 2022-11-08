@@ -67,15 +67,16 @@ const BasicCard = ({
   capacity,
   participants = [],
   eventUid,
-  loadEvents,
+  updateData,
+  loadEvents
 }) => {
   const [expanded, setExpanded] = useState(false);
   const { currentLocation } = useContext(LocationContext);
   const [currentParticipants, setCurrentParticipants] = useState(participants);
   const distanceFromUser = currentLocation
     ? (
-        new LngLat(longitude, latitude).distanceTo(currentLocation) / 1000
-      ).toFixed(2)
+      new LngLat(longitude, latitude).distanceTo(currentLocation) / 1000
+    ).toFixed(2)
     : "XX";
   const { user } = useContext(AuthContext);
 
@@ -123,6 +124,7 @@ const BasicCard = ({
       participants: arrayUnion(user.uid),
     });
     setCurrentParticipants([...currentParticipants, user.uid]);
+    updateData();
   };
 
   const doLeave = async () => {
@@ -134,6 +136,7 @@ const BasicCard = ({
     setCurrentParticipants(
       currentParticipants.filter((participantId) => participantId !== user.uid)
     );
+    updateData();
   };
 
   const handleEdit = () => {
@@ -211,8 +214,8 @@ const BasicCard = ({
               {startDateTime || endDateTime
                 ? `${moment(startDateTime.toDate()).format("D MMM YY, h:mma")}
                      - ${moment(endDateTime.toDate()).format(
-                       "D MMM YY, h:mma"
-                     )}`
+                  "D MMM YY, h:mma"
+                )}`
                 : "time - time"}
             </Typography>
             <Typography
@@ -260,8 +263,8 @@ const BasicCard = ({
               }}
             >
               {user &&
-              user.uid !== creatorId &&
-              endDateTime > Timestamp.now() ? ( // can only join if not creator
+                user.uid !== creatorId &&
+                endDateTime > Timestamp.now() ? ( // can only join if not creator
                 !hasJoined() ? (
                   <Button
                     onClick={() => {
