@@ -18,8 +18,8 @@ import {
   Button,
 } from "@mui/material";
 import { Add, Tune, Layers } from "@mui/icons-material";
-import Divider from '@mui/material/Divider';
-import MenuList from '@mui/material/MenuList';
+import Divider from "@mui/material/Divider";
+import MenuList from "@mui/material/MenuList";
 
 import Map, {
   Popup,
@@ -65,19 +65,19 @@ const MapView = () => {
   const [layersAnchorEl, setLayersAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const layersOpen = Boolean(layersAnchorEl);
-  const [cursor, setCursor] = useState('auto');
+  const [cursor, setCursor] = useState("auto");
 
   const handleMove = useCallback((evt) => {
     setViewState(evt.viewState);
   }, []);
-
 
   const handleMapClick = (event) => {
     setPopupInfo(null);
 
     const features = event.features || [];
     if (features.length > 0) {
-      if (features[0].layer.id !== "clusters") { // if point is not a cluster, show popup
+      if (features[0].layer.id !== "clusters") {
+        // if point is not a cluster, show popup
         var data = JSON.parse(features[0].properties.data);
         // match data title to event title
         var curEvent = events.find((e) => e.data().title === data.title);
@@ -86,7 +86,7 @@ const MapView = () => {
         var zoom = mapRef.current.getZoom();
         mapRef.current.easeTo({
           padding: {
-            bottom: 300
+            bottom: 300,
           },
           center: features[0].geometry.coordinates,
           zoom: zoom,
@@ -98,7 +98,7 @@ const MapView = () => {
         if (event !== null && event.features[0] !== undefined) {
           const feature = event.features[0];
           const clusterId = feature.properties.cluster_id;
-          const mapboxSource = mapRef.current.getSource('geoData');
+          const mapboxSource = mapRef.current.getSource("geoData");
 
           mapboxSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
             if (err) {
@@ -106,11 +106,11 @@ const MapView = () => {
             }
             mapRef.current.easeTo({
               padding: {
-                bottom: 150
+                bottom: 150,
               },
               center: feature.geometry.coordinates,
               zoom,
-              duration: 500
+              duration: 500,
             });
           });
         }
@@ -132,7 +132,7 @@ const MapView = () => {
 
   const handleLayersClose = () => {
     setLayersAnchorEl(null);
-  }
+  };
 
   // const layerStyle = {
   //   id: "point",
@@ -161,7 +161,7 @@ const MapView = () => {
     ],
     "circle-radius": ["step", ["get", "point_count"], 30, 5, 40, 10, 50],
     "circle-stroke-width": 1,
-    "circle-stroke-color": "#fff"
+    "circle-stroke-color": "#fff",
   };
 
   const layerUnclusteredPointStyle = {
@@ -179,26 +179,28 @@ const MapView = () => {
   };
 
   const unclusteredPointLayer = {
-    id: 'unclustered-point',
-    type: 'circle',
-    source: 'events',
-    filter: ['all', ['!has', 'point_count'], ['==', 'isInEvent', false]],
-    paint: layerUnclusteredPointStyle
-  }
+    id: "unclustered-point",
+    type: "circle",
+    source: "events",
+    filter: ["all", ["!has", "point_count"], ["==", "isInEvent", false]],
+    paint: layerUnclusteredPointStyle,
+  };
 
   const unclusteredPointLayerJoined = {
-    id: 'unclustered-point-joined',
-    type: 'circle',
-    source: 'events',
-    filter: ['all', ['!has', 'point_count'], ['==', 'isInEvent', true]],
-    paint: layerUnclusteredPointJoinedStyle
-  }
+    id: "unclustered-point-joined",
+    type: "circle",
+    source: "events",
+    filter: ["all", ["!has", "point_count"], ["==", "isInEvent", true]],
+    paint: layerUnclusteredPointJoinedStyle,
+  };
 
-  const onMouseEnter = () => setCursor('pointer');
-  const onMouseLeave = () => setCursor('auto');
+  const onMouseEnter = () => setCursor("pointer");
+  const onMouseLeave = () => setCursor("auto");
 
   // Loads events and listens for upcoming ones.
   const loadEvents = useCallback(async () => {
+    setPopupInfo(null);
+
     let type = null;
 
     if (
@@ -243,7 +245,7 @@ const MapView = () => {
               _isInEvent = true;
             }
           } catch (e) {
-            console.log(e)
+            console.log(e);
           }
         });
         coordinates.push({
@@ -254,7 +256,7 @@ const MapView = () => {
           },
           properties: {
             data: e.data(),
-            isInEvent: _isInEvent
+            isInEvent: _isInEvent,
           },
         });
       });
@@ -273,7 +275,7 @@ const MapView = () => {
           },
           properties: {
             data: e.data(),
-            isInEvent: false
+            isInEvent: false,
           },
         });
       });
@@ -299,7 +301,11 @@ const MapView = () => {
         cursor={cursor}
         mapStyle="mapbox://styles/mapbox/streets-v9"
         mapboxAccessToken={MAPBOX_TOKEN}
-        interactiveLayerIds={["clusters", unclusteredPointLayer.id, unclusteredPointLayerJoined.id]}
+        interactiveLayerIds={[
+          "clusters",
+          unclusteredPointLayer.id,
+          unclusteredPointLayerJoined.id,
+        ]}
         onClick={handleMapClick}
         ref={mapRef}
         reuseMaps
@@ -486,7 +492,9 @@ const MapView = () => {
             <ListItemText>
               <div>
                 <span className="legend-dot-unjoined"></span>
-                <span className="legend-text">Events/ groups available to join</span>
+                <span className="legend-text">
+                  Events/ groups available to join
+                </span>
               </div>
             </ListItemText>
             <ListItemText>
@@ -495,10 +503,7 @@ const MapView = () => {
                 <span className="legend-text">Events/ groups joined</span>
               </div>
             </ListItemText>
-
-
           </MenuList>
-
         </Menu>
         <Button
           sx={{
